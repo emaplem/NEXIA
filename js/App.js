@@ -27,23 +27,56 @@ function enviarMensaje(){
     "<p>Usuario: " + mensaje + "</p>";
 
 
-    if(mensaje.toLowerCase().includes("hola")){
+let texto = mensaje.toLowerCase();
 
 
-        chat.innerHTML += 
-        "<p>Nexia: Hola 👋 ¿Cómo puedo ayudarte?</p>";
+if(texto.includes("hola")){
 
 
-    }
-
-    else{
-
-
-        chat.innerHTML += 
-        "<p>Nexia: Estoy aprendiendo todavía 🤖, pero pronto podré ayudarte con muchas tareas.</p>";
+    chat.innerHTML += 
+    "<p>Nexia: Hola 👋 soy Nexia. Estoy listo para ayudarte.</p>";
 
 
-    }
+}
+
+
+else if(texto.includes("organizar") || texto.includes("día")){
+
+
+    chat.innerHTML += 
+    "<p>Nexia: Claro 🤖 puedo ayudarte a organizar tus tareas y actividades.</p>";
+
+
+}
+
+
+else if(texto.includes("recordatorio") || texto.includes("recordar")){
+
+
+    chat.innerHTML += 
+    "<p>Nexia: Puedo ayudarte a crear recordatorios para fechas importantes 🔔.</p>";
+
+
+}
+
+
+else if(texto.includes("documento") || texto.includes("archivo")){
+
+
+    chat.innerHTML += 
+    "<p>Nexia: Puedo ayudarte a organizar información y documentos importantes 📄.</p>";
+
+
+}
+
+
+else{
+
+
+    chat.innerHTML += 
+    "<p>Nexia: Todavía estoy aprendiendo, pero cada día soy más inteligente 🤖.</p>";
+
+}
 
 
     document.getElementById("mensaje").value="";
