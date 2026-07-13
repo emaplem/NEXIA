@@ -150,3 +150,103 @@ function mostrarTareas(){
 
 
 window.onload = mostrarTareas;
+
+function agregarRecordatorio(){
+
+
+    let texto = document.getElementById("recordatorio").value;
+
+    let fecha = document.getElementById("fecha").value;
+
+
+
+    if(texto === "" || fecha === ""){
+
+
+        alert("Completa todos los campos");
+
+        return;
+
+    }
+
+
+
+    let recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
+
+
+
+    recordatorios.push({
+
+        texto:texto,
+
+        fecha:fecha
+
+    });
+
+
+
+    localStorage.setItem(
+        "recordatorios",
+        JSON.stringify(recordatorios)
+    );
+
+
+
+    mostrarRecordatorios();
+
+
+
+    document.getElementById("recordatorio").value="";
+
+    document.getElementById("fecha").value="";
+
+
+}
+
+
+
+
+
+function mostrarRecordatorios(){
+
+
+    let lista = document.getElementById("lista-recordatorios");
+
+
+    lista.innerHTML="";
+
+
+
+    let recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
+
+
+
+    recordatorios.forEach(function(recordatorio){
+
+
+
+        let elemento = document.createElement("li");
+
+
+
+        elemento.textContent =
+        "🔔 " + recordatorio.texto +
+        " 📅 " + recordatorio.fecha;
+
+
+
+        lista.appendChild(elemento);
+
+
+
+    });
+
+
+}
+
+
+
+window.addEventListener(
+"load",
+mostrarRecordatorios
+);

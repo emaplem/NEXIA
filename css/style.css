@@ -233,3 +233,55 @@ margin:10px;
 border-radius:10px;
 
 }
+
+.reminders{
+
+background:white;
+width:80%;
+max-width:600px;
+margin:50px auto;
+padding:30px;
+border-radius:15px;
+box-shadow:0 5px 15px #ddd;
+text-align:center;
+
+}
+
+
+
+.reminder-container{
+
+display:flex;
+flex-direction:column;
+gap:15px;
+margin-top:20px;
+
+}
+
+
+
+.reminder-container input{
+
+padding:12px;
+
+}
+
+
+
+#lista-recordatorios{
+
+list-style:none;
+margin-top:25px;
+
+}
+
+
+
+#lista-recordatorios li{
+
+background:#f1f5f9;
+padding:15px;
+margin:10px;
+border-radius:10px;
+
+}
