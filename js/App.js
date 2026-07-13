@@ -82,3 +82,35 @@ else{
     document.getElementById("mensaje").value="";
 
 }
+
+function agregarTarea(){
+
+
+    let tarea = document.getElementById("tarea").value;
+
+
+    let lista = document.getElementById("lista-tareas");
+
+
+    if(tarea === ""){
+
+        alert("Escribe una tarea primero");
+
+        return;
+
+    }
+
+
+    let nuevaTarea = document.createElement("li");
+
+
+    nuevaTarea.textContent = "✅ " + tarea;
+
+
+    lista.appendChild(nuevaTarea);
+
+
+    document.getElementById("tarea").value="";
+
+
+}
