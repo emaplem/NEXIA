@@ -89,9 +89,6 @@ function agregarTarea(){
     let tarea = document.getElementById("tarea").value;
 
 
-    let lista = document.getElementById("lista-tareas");
-
-
     if(tarea === ""){
 
         alert("Escribe una tarea primero");
@@ -101,16 +98,55 @@ function agregarTarea(){
     }
 
 
-    let nuevaTarea = document.createElement("li");
+    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
 
 
-    nuevaTarea.textContent = "✅ " + tarea;
+    tareas.push(tarea);
 
 
-    lista.appendChild(nuevaTarea);
+    localStorage.setItem("tareas", JSON.stringify(tareas));
+
+
+    mostrarTareas();
 
 
     document.getElementById("tarea").value="";
 
 
 }
+
+
+
+
+function mostrarTareas(){
+
+
+    let lista = document.getElementById("lista-tareas");
+
+
+    lista.innerHTML="";
+
+
+    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+
+    tareas.forEach(function(tarea){
+
+
+        let nuevaTarea = document.createElement("li");
+
+
+        nuevaTarea.textContent = "✅ " + tarea;
+
+
+        lista.appendChild(nuevaTarea);
+
+
+    });
+
+
+}
+
+
+
+window.onload = mostrarTareas;
