@@ -285,3 +285,41 @@ margin:10px;
 border-radius:10px;
 
 }
+
+.dashboard{
+
+padding:50px;
+text-align:center;
+
+}
+
+
+
+.dashboard-cards{
+
+display:flex;
+justify-content:center;
+gap:30px;
+margin-top:30px;
+
+}
+
+
+
+.dash-card{
+
+background:white;
+width:250px;
+padding:30px;
+border-radius:15px;
+box-shadow:0 5px 15px #ddd;
+
+}
+
+
+
+.dash-card h3{
+
+margin-bottom:15px;
+
+}

@@ -250,3 +250,31 @@ window.addEventListener(
 "load",
 mostrarRecordatorios
 );
+
+function actualizarDashboard(){
+
+
+    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+
+    let recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
+
+
+
+    document.getElementById("contador-tareas").textContent =
+    "Tienes " + tareas.length + " tareas pendientes";
+
+
+
+    document.getElementById("contador-recordatorios").textContent =
+    "Tienes " + recordatorios.length + " recordatorios guardados";
+
+
+}
+
+
+
+window.addEventListener(
+"load",
+actualizarDashboard
+);
