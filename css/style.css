@@ -322,4 +322,64 @@ box-shadow:0 5px 15px #ddd;
 
 margin-bottom:15px;
 
+}.login{
+
+height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+background:#eef4ff;
+
+}
+
+
+
+.login-box{
+
+background:white;
+
+padding:40px;
+
+width:400px;
+
+border-radius:20px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+
+display:flex;
+
+flex-direction:column;
+
+gap:20px;
+
+text-align:center;
+
+}
+
+
+
+.login-box input{
+
+padding:15px;
+
+border:1px solid #ccc;
+
+border-radius:10px;
+
+font-size:16px;
+
+}
+
+
+
+.login-box button{
+
+padding:15px;
+
+font-size:16px;
+
 }
