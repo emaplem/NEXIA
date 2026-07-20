@@ -1,10 +1,9 @@
-function iniciarSesion(){
+function iniciarSesion() {
 
     let correo = document.getElementById("correo").value;
-
     let password = document.getElementById("password").value;
 
-    if(correo === "" || password === ""){
+    if (correo === "" || password === "") {
 
         alert("Completa todos los campos.");
 
@@ -12,9 +11,31 @@ function iniciarSesion(){
 
     }
 
-    alert("¡Bienvenido a Nexia, " + correo + "!");
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-    window.location.href = "dashboard.html";
+    let usuarioEncontrado = usuarios.find(function(usuario){
+
+        return usuario.correo === correo &&
+               usuario.password === password;
+
+    });
+
+    if(usuarioEncontrado){
+
+        localStorage.setItem(
+            "usuarioActivo",
+            JSON.stringify(usuarioEncontrado)
+        );
+
+        alert("Bienvenido " + usuarioEncontrado.nombre);
+
+        window.location.href = "dashboard.html";
+
+    }else{
+
+        alert("Correo o contraseña incorrectos.");
+
+    }
 
 }
 
@@ -78,3 +99,26 @@ function registrarUsuario(){
     window.location.href = "login.html";
 
 }
+
+function mostrarUsuario(){
+
+    let usuario = JSON.parse(
+        localStorage.getItem("usuarioActivo")
+    );
+
+    if(usuario){
+
+        let titulo = document.getElementById("bienvenida");
+
+        if(titulo){
+
+            titulo.textContent =
+            "¡Bienvenido, " + usuario.nombre + "! 👋";
+
+        }
+
+    }
+
+}
+
+window.addEventListener("load", mostrarUsuario);
