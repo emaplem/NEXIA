@@ -102,23 +102,56 @@ function registrarUsuario(){
 
 function mostrarUsuario(){
 
-    let usuario = JSON.parse(
-        localStorage.getItem("usuarioActivo")
-    );
+    let usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
 
-    if(usuario){
+    if(!usuario) return;
 
-        let titulo = document.getElementById("bienvenida");
+    let bienvenida = document.getElementById("bienvenida");
 
-        if(titulo){
+    if(bienvenida){
+        bienvenida.textContent = "¡Bienvenido, " + usuario.nombre + "! 👋";
+    }
 
-            titulo.textContent =
-            "¡Bienvenido, " + usuario.nombre + "! 👋";
+    let nombrePerfil = document.getElementById("nombre-perfil");
+    let correoPerfil = document.getElementById("correo-perfil");
 
-        }
+    if(nombrePerfil){
+        nombrePerfil.textContent = usuario.nombre;
+    }
+
+    if(correoPerfil){
+        correoPerfil.textContent = usuario.correo;
+    }
+
+}
+
+function protegerDashboard() {
+
+    // Solo ejecutar esta función en dashboard.html
+    if (!window.location.pathname.endsWith("dashboard.html")) {
+        return;
+    }
+
+    let usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+    if (!usuario) {
+
+        alert("Debes iniciar sesión para acceder.");
+
+        window.location.href = "login.html";
 
     }
 
 }
 
+
 window.addEventListener("load", mostrarUsuario);
+window.addEventListener("load", protegerDashboard);
+
+function cerrarSesion() {
+
+    localStorage.removeItem("usuarioActivo");
+
+    window.location.href = "login.html";
+
+}
