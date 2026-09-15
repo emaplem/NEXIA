@@ -278,3 +278,6 @@ window.addEventListener(
 "load",
 actualizarDashboard
 );
+
+window.addEventListener("load", mostrarTareas);
+window.addEventListener("load", actualizarDashboard);

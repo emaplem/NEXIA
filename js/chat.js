@@ -23,22 +23,53 @@ function enviarMensaje(){
 
     respuesta.className = "mensaje bot";
 
-    if(texto.toLowerCase().includes("tarea")){
+   let mensaje = texto.toLowerCase();
+
+if(mensaje.startsWith("crear tarea:")){
+
+    let nombreTarea = texto.substring(13).trim();
+
+    if(nombreTarea !== ""){
+
+        let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+        tareas.push(nombreTarea);
+
+        localStorage.setItem("tareas", JSON.stringify(tareas));
+
+        try{
+    if(typeof mostrarTareas === "function"){
+        mostrarTareas();
+    }
+
+    if(typeof actualizarDashboard === "function"){
+        actualizarDashboard();
+    }
+}catch(error){
+    console.log(error);
+}
 
         respuesta.textContent =
-        "📋 Puedo ayudarte a organizar tus tareas.";
-
-    }else if(texto.toLowerCase().includes("recordatorio")){
-
-        respuesta.textContent =
-        "🔔 También puedo guardar recordatorios importantes.";
+        "✅ He agregado la tarea: " + nombreTarea;
 
     }else{
 
         respuesta.textContent =
-        "🤖 Entendido. Estoy aprendiendo y pronto seré mucho más inteligente.";
+        "Escribe el nombre después de 'Crear tarea:'";
 
     }
+
+}else if(mensaje.includes("recordatorio")){
+
+    respuesta.textContent =
+    "🔔 También puedo ayudarte con recordatorios.";
+
+}else{
+
+    respuesta.textContent =
+    "🤖 Entendido. Estoy aprendiendo y cada vez puedo ayudarte mejor.";
+
+}
 
     chat.appendChild(respuesta);
 
