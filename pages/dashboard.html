@@ -1,170 +1,302 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="theme-color" content="#f5f6fc">
     <title>Dashboard | Nexia</title>
-
     <link rel="stylesheet" href="../css/style.css">
-
 </head>
 
-<body>
+<body class="dashboard-page">
 
-<header>
+    <div class="app-layout">
 
-    <nav class="navbar">
+        <aside class="sidebar">
+            <a href="dashboard.html" class="brand">
+                <span class="brand-icon">N</span>
+                <span>Nexia<span class="brand-dot">.</span></span>
+            </a>
 
-        <h2 class="logo">
-            Nexia 🤖
-        </h2>
+            <p class="sidebar-label">MENÚ PRINCIPAL</p>
 
-       <ul class="menu">
-    <li><a href="dashboard.html">Dashboard</a></li>
-    <li><a href="#perfil">Mi Perfil</a></li>
-    <li><a href="#" onclick="cerrarSesion()">Cerrar sesión</a></li>
-</ul>
+            <nav class="sidebar-nav">
+                <a href="#inicio" class="nav-item active">
+                    <span>▦</span> Inicio
+                </a>
 
-    </nav>
+                <a href="#recordatorios" class="nav-item">
+    <span>♧</span> Recordatorios
+</a>
 
-</header>
+                <a href="#estadisticas" class="nav-item">
+                    <span>▤</span> Estadísticas
+                </a>
 
+                <a href="#chat" class="nav-item">
+                    <span>✦</span> Asistente IA
+                </a>
 
-<section class="hero">
+                <a href="#tareas" class="nav-item">
+                    <span>✓</span> Mis tareas
+                </a>
 
-    <div class="hero-text">
+                <a href="#perfil" class="nav-item">
+                    <span>♙</span> Mi perfil
+                </a>
+            </nav>
 
-        <h1 id="bienvenida">
+            <div class="sidebar-bottom">
+                <div class="sidebar-help">
+                    <span class="help-icon">✦</span>
+                    <h3>Tu día, más fácil</h3>
+                    <p>Organiza tus pendientes con Nexia.</p>
+                    <a href="#chat">Hablar con Nexia →</a>
+                </div>
 
-    Bienvenido
+                <button class="logout-button" onclick="cerrarSesion()">
+                    ↪ Cerrar sesión
+                </button>
+            </div>
+        </aside>
 
-</h1>
+        <main class="main-content">
 
-        <p>
-            Administra todas tus actividades desde un solo lugar.
-        </p>
+            <header class="topbar">
+                <div>
+                    <p class="breadcrumb">Workspace / Dashboard</p>
+                    <h2>Panel de control</h2>
+                </div>
 
+                <a href="#perfil" class="topbar-user">
+                    <span class="topbar-avatar">👤</span>
+                    <span>
+                        <strong id="nombre-topbar">Mi cuenta</strong>
+                        <small>Cuenta personal</small>
+                    </span>
+                </a>
+            </header>
+
+            <section class="welcome-banner" id="inicio">
+                <div class="welcome-content">
+                    <span class="eyebrow">TU ASISTENTE PERSONAL</span>
+
+                    <h1 id="bienvenida">¡Bienvenido a Nexia! 👋</h1>
+
+                    <p>
+                        Organiza tus tareas, administra tus recordatorios
+                        y aprovecha mejor tu tiempo.
+                    </p>
+
+                    <a href="#chat" class="primary-link">
+                        Hablar con Nexia <span>→</span>
+                    </a>
+                </div>
+
+                <div class="welcome-decoration" aria-hidden="true">
+                    <div class="decoration-orbit orbit-one"></div>
+                    <div class="decoration-orbit orbit-two"></div>
+                    <div class="decoration-robot">✦</div>
+                    <span class="decoration-spark spark-one">✧</span>
+                    <span class="decoration-spark spark-two">✦</span>
+                </div>
+            </section>
+
+            <section class="overview-section">
+                <div class="section-heading">
+                    <div>
+                        <span class="section-kicker">VISTA GENERAL</span>
+                        <h2>Tu resumen</h2>
+                    </div>
+
+                    <span class="live-status">
+                        <span></span> Panel activo
+                    </span>
+                </div>
+
+                <div class="dashboard-cards">
+
+                    <article class="dash-card stat-card">
+                        <div class="stat-top">
+                            <span class="stat-icon purple">✓</span>
+                            <span class="stat-tag">ORGANIZACIÓN</span>
+                        </div>
+                        <h3 id="total-tareas">0</h3>
+                        <p>Tareas registradas</p>
+                        <small id="contador-tareas">Cargando tareas...</small>
+                    </article>
+
+                    <article class="dash-card stat-card">
+                        <div class="stat-top">
+                            <span class="stat-icon orange">♧</span>
+                            <span class="stat-tag">PLANIFICACIÓN</span>
+                        </div>
+                        <h3 id="total-recordatorios">0</h3>
+                        <p>Recordatorios guardados</p>
+                        <small id="contador-recordatorios">Cargando recordatorios...</small>
+                    </article>
+
+                    <article class="dash-card stat-card">
+                        <div class="stat-top">
+                            <span class="stat-icon green">✦</span>
+                            <span class="stat-tag">ASISTENCIA</span>
+                        </div>
+                        <h3>IA</h3>
+                        <p>Asistente Nexia</p>
+                        <small>Disponible para ayudarte</small>
+                    </article>
+
+                </div>
+            </section>
+
+            <section class="workspace-grid" id="estadisticas">
+
+                <div class="content-panel chat-app" id="chat">
+                    <div class="panel-heading">
+                        <div class="assistant-heading">
+                            <div class="assistant-avatar">✦</div>
+                            <div>
+                                <h2>Habla con Nexia</h2>
+                                <p><span class="online-dot"></span> Asistente disponible</p>
+                            </div>
+                        </div>
+
+                        <span class="ai-badge">ASISTENTE</span>
+                    </div>
+
+                    <div id="chat-box" class="chat-box">
+                        <div class="mensaje bot">
+                            ¡Hola! 👋 Soy Nexia, tu asistente virtual.
+                            Puedo ayudarte a organizar tus tareas y guardar
+                            recordatorios. ¿Qué hacemos hoy?
+                        </div>
+                    </div>
+
+                    <div class="chat-input">
+                        <input
+                            type="text"
+                            id="mensaje"
+                            placeholder="Escribe tu mensaje..."
+                            aria-label="Mensaje para Nexia"
+                            onkeydown="if(event.key === 'Enter') enviarMensaje()">
+
+                        <button onclick="enviarMensaje()" aria-label="Enviar mensaje">
+                            Enviar <span>➤</span>
+                        </button>
+                    </div>
+
+                    <p class="chat-hint">
+                        Prueba: «Crear tarea: estudiar programación».
+                    </p>
+                </div>
+
+                <div class="content-panel profile-panel" id="perfil">
+                    <div class="panel-heading">
+                        <div>
+                            <span class="section-kicker">TU CUENTA</span>
+                            <h2>Mi perfil</h2>
+                        </div>
+                        <span class="profile-menu">•••</span>
+                    </div>
+
+                    <div class="profile-identity">
+                        <div class="profile-avatar">👤</div>
+                        <h3 id="nombre-perfil">Usuario</h3>
+                        <p id="correo-perfil">correo@email.com</p>
+                        <span class="profile-status">● Sesión activa</span>
+                    </div>
+
+                    <div class="profile-divider"></div>
+
+                    <div class="profile-detail">
+                        <span>Tipo de cuenta</span>
+                        <strong>Personal</strong>
+                    </div>
+
+                    <div class="profile-detail">
+                        <span>Plataforma</span>
+                        <strong>Nexia Assistant</strong>
+                    </div>
+
+                    <a href="#inicio" class="profile-action">
+                        Volver al inicio <span>→</span>
+                    </a>
+                </div>
+
+            </section>
+
+            
+<section class="content-panel reminders" id="recordatorios">
+    <div class="panel-heading">
+        <div>
+            <span class="section-kicker">PLANIFICACIÓN</span>
+            <h2>Mis recordatorios 🔔</h2>
+            <p>Consulta y administra tus próximos pendientes.</p>
+        </div>
     </div>
 
-</section>
-
-
-<section class="dashboard">
-
-    <h2>Resumen</h2>
-
-    <div class="dashboard-cards">
-
-        <div class="dash-card">
-
-            <h3>📋 Tareas</h3>
-
-            <p id="contador-tareas">
-                Cargando...
-            </p>
-
+    <form onsubmit="event.preventDefault(); agregarRecordatorio();">
+        <div>
+            <label for="recordatorio">Descripción</label>
+            <input
+                type="text"
+                id="recordatorio"
+                placeholder="Ej. Pagar internet"
+                required>
         </div>
 
-
-        <div class="dash-card">
-
-            <h3>🔔 Recordatorios</h3>
-
-            <p id="contador-recordatorios">
-                Cargando...
-            </p>
-
+        <div>
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required>
         </div>
 
+        <button type="submit">Guardar recordatorio</button>
+    </form>
 
-        <div class="dash-card">
-
-            <h3>💬 Chat IA</h3>
-
-            <p>
-                Disponible
-            </p>
-
-        </div>
-
-    </div>
-
+    <ul id="lista-recordatorios"></ul>
 </section>
 
-<section class="perfil" id="perfil">
+            <section class="content-panel tasks" id="tareas">
+                <div class="panel-heading">
+                    <div>
+                        <span class="section-kicker">PRODUCTIVIDAD</span>
+                        <h2>Mis tareas</h2>
+                        <p>Registra las actividades que necesitas completar.</p>
+                    </div>
 
-    <h2>Mi perfil 👤</h2>
+                    <span class="task-heading-icon">✓</span>
+                </div>
 
-    <div class="perfil-card">
+                <div class="task-container">
+                    <input
+                        type="text"
+                        id="tarea"
+                        placeholder="Ej. Terminar mi proyecto..."
+                        aria-label="Nombre de la nueva tarea"
+                        onkeydown="if(event.key === 'Enter') agregarTarea()">
 
-        <div class="avatar">👤</div>
+                    <button onclick="agregarTarea()">
+                        + Agregar tarea
+                    </button>
+                </div>
 
-        <h3 id="nombre-perfil">Usuario</h3>
+                <ul id="lista-tareas"></ul>
+            </section>
 
-        <p id="correo-perfil">correo@email.com</p>
+            <footer class="app-footer">
+                <a href="#inicio" class="footer-brand">Nexia.</a>
+                <p>Tu tiempo importa. Organízalo con Nexia.</p>
+                <span>© 2026 Nexia</span>
+            </footer>
 
-        <span class="estado">🟢 Sesión activa</span>
-
+        </main>
     </div>
 
-</section>
-
-<section class="chat-app">
-
-    <h2>Hablar con Nexia 💬</h2>
-
-    <div id="chat-box" class="chat-box">
-
-        <div class="mensaje bot">
-            Hola 👋 Soy Nexia. ¿En qué puedo ayudarte hoy?
-        </div>
-
-    </div>
-
-    <div class="chat-input">
-
-        <input
-            type="text"
-            id="mensaje"
-            placeholder="Escribe un mensaje...">
-
-        <button onclick="enviarMensaje()">
-            Enviar
-        </button>
-
-    </div>
-
-</section>
-
-<section class="tasks">
-
-    <h2>Mis tareas 📋</h2>
-
-    <div class="task-container">
-
-        <input
-            type="text"
-            id="tarea"
-            placeholder="Escribe una nueva tarea...">
-
-        <button onclick="agregarTarea()">
-            Agregar
-        </button>
-
-    </div>
-
-    <ul id="lista-tareas"></ul>
-
-</section>
-
-<script src="../js/app.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/chat.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/chat.js"></script>
 
 </body>
-
 </html>

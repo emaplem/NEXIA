@@ -1,283 +1,219 @@
+
 console.log("Nexia iniciado correctamente 🤖");
 
-
-function iniciarNexia(){
-
-    alert("Hola 👋 soy Nexia, tu asistente virtual. ¿En qué puedo ayudarte?");
-
+function iniciarNexia() {
+    alert("Hola 👋 Soy Nexia, tu asistente virtual. ¿En qué puedo ayudarte?");
 }
 
-function mostrarChat(){
+function mostrarChat() {
+    const chat = document.getElementById("chat-box");
 
-    document.querySelector(".chat").scrollIntoView();
-
+    if (chat) {
+        chat.scrollIntoView({ behavior: "smooth" });
+    }
 }
 
-
-
-function enviarMensaje(){
-
-    let mensaje = document.getElementById("mensaje").value;
-
-
-    let chat = document.getElementById("chat-box");
-
-
-    chat.innerHTML += 
-    "<p>Usuario: " + mensaje + "</p>";
-
-
-let texto = mensaje.toLowerCase();
-
-
-if(texto.includes("hola")){
-
-
-    chat.innerHTML += 
-    "<p>Nexia: Hola 👋 soy Nexia. Estoy listo para ayudarte.</p>";
-
-
+function obtenerTareas() {
+    try {
+        return JSON.parse(localStorage.getItem("tareas")) || [];
+    } catch (error) {
+        return [];
+    }
 }
 
-
-else if(texto.includes("organizar") || texto.includes("día")){
-
-
-    chat.innerHTML += 
-    "<p>Nexia: Claro 🤖 puedo ayudarte a organizar tus tareas y actividades.</p>";
-
-
+function obtenerRecordatorios() {
+    try {
+        return JSON.parse(localStorage.getItem("recordatorios")) || [];
+    } catch (error) {
+        return [];
+    }
 }
 
+function agregarTarea() {
+    const input = document.getElementById("tarea");
 
-else if(texto.includes("recordatorio") || texto.includes("recordar")){
+    if (!input) return;
 
+    const nombreTarea = input.value.trim();
 
-    chat.innerHTML += 
-    "<p>Nexia: Puedo ayudarte a crear recordatorios para fechas importantes 🔔.</p>";
-
-
-}
-
-
-else if(texto.includes("documento") || texto.includes("archivo")){
-
-
-    chat.innerHTML += 
-    "<p>Nexia: Puedo ayudarte a organizar información y documentos importantes 📄.</p>";
-
-
-}
-
-
-else{
-
-
-    chat.innerHTML += 
-    "<p>Nexia: Todavía estoy aprendiendo, pero cada día soy más inteligente 🤖.</p>";
-
-}
-
-
-    document.getElementById("mensaje").value="";
-
-}
-
-function agregarTarea(){
-
-
-    let tarea = document.getElementById("tarea").value;
-
-
-    if(tarea === ""){
-
-        alert("Escribe una tarea primero");
-
+    if (nombreTarea === "") {
+        alert("Escribe una tarea primero.");
         return;
-
     }
 
-
-    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-
-
-    tareas.push(tarea);
-
+    const tareas = obtenerTareas();
+    tareas.push(nombreTarea);
 
     localStorage.setItem("tareas", JSON.stringify(tareas));
 
+    input.value = "";
 
     mostrarTareas();
-
-
-    document.getElementById("tarea").value="";
-
-
+    actualizarDashboard();
 }
 
+function mostrarTareas() {
+    const lista = document.getElementById("lista-tareas");
 
+    if (!lista) return;
 
+    lista.replaceChildren();
 
-function mostrarTareas(){
+    const tareas = obtenerTareas();
 
-
-    let lista = document.getElementById("lista-tareas");
-
-
-    lista.innerHTML="";
-
-
-    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-
-
-    tareas.forEach(function(tarea){
-
-
-        let nuevaTarea = document.createElement("li");
-
-
-        nuevaTarea.textContent = "✅ " + tarea;
-
-
-        lista.appendChild(nuevaTarea);
-
-
-    });
-
-
-}
-
-
-
-window.onload = mostrarTareas;
-
-function agregarRecordatorio(){
-
-
-    let texto = document.getElementById("recordatorio").value;
-
-    let fecha = document.getElementById("fecha").value;
-
-
-
-    if(texto === "" || fecha === ""){
-
-
-        alert("Completa todos los campos");
-
+    if (tareas.length === 0) {
+        const elemento = document.createElement("li");
+        elemento.textContent = "Todavía no tienes tareas. ¡Agrega la primera!";
+        lista.appendChild(elemento);
+        actualizarDashboard();
         return;
-
     }
 
+    tareas.forEach(function(tarea, indice) {
+        const elemento = document.createElement("li");
+        const texto = document.createElement("span");
+        const boton = document.createElement("button");
 
+        texto.textContent = "📋 " + tarea;
+        boton.textContent = "Eliminar";
+        boton.type = "button";
+        boton.setAttribute("aria-label", "Eliminar tarea " + tarea);
+        boton.addEventListener("click", function() {
+            eliminarTarea(indice);
+        });
 
-    let recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
+        elemento.append(texto, boton);
+        lista.appendChild(elemento);
+    });
 
+    actualizarDashboard();
+}
 
+function eliminarTarea(indice) {
+    const tareas = obtenerTareas();
+
+    if (indice < 0 || indice >= tareas.length) return;
+
+    tareas.splice(indice, 1);
+
+    localStorage.setItem("tareas", JSON.stringify(tareas));
+
+    mostrarTareas();
+    actualizarDashboard();
+}
+
+function agregarRecordatorio() {
+    const inputTexto = document.getElementById("recordatorio");
+    const inputFecha = document.getElementById("fecha");
+
+    if (!inputTexto || !inputFecha) {
+        alert("No se encontró el formulario de recordatorios.");
+        return;
+    }
+
+    const texto = inputTexto.value.trim();
+    const fecha = inputFecha.value;
+
+    if (texto === "" || fecha === "") {
+        alert("Completa la descripción y la fecha del recordatorio.");
+        return;
+    }
+
+    const recordatorios = obtenerRecordatorios();
 
     recordatorios.push({
-
-        texto:texto,
-
-        fecha:fecha
-
+        texto: texto,
+        fecha: fecha
     });
 
+    localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
 
-
-    localStorage.setItem(
-        "recordatorios",
-        JSON.stringify(recordatorios)
-    );
-
-
+    inputTexto.value = "";
+    inputFecha.value = "";
 
     mostrarRecordatorios();
-
-
-
-    document.getElementById("recordatorio").value="";
-
-    document.getElementById("fecha").value="";
-
-
+    actualizarDashboard();
 }
 
+function mostrarRecordatorios() {
+    const lista = document.getElementById("lista-recordatorios");
 
+    if (!lista) return;
 
+    lista.replaceChildren();
 
+    const recordatorios = obtenerRecordatorios();
 
-function mostrarRecordatorios(){
-
-
-    let lista = document.getElementById("lista-recordatorios");
-
-
-    lista.innerHTML="";
-
-
-
-    let recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
-
-
-
-    recordatorios.forEach(function(recordatorio){
-
-
-
-        let elemento = document.createElement("li");
-
-
-
-        elemento.textContent =
-        "🔔 " + recordatorio.texto +
-        " 📅 " + recordatorio.fecha;
-
-
-
+    if (recordatorios.length === 0) {
+        const elemento = document.createElement("li");
+        elemento.textContent = "Todavía no tienes recordatorios guardados.";
         lista.appendChild(elemento);
+        actualizarDashboard();
+        return;
+    }
 
+    recordatorios.forEach(function(recordatorio, indice) {
+        const elemento = document.createElement("li");
+        const texto = document.createElement("span");
+        const boton = document.createElement("button");
 
+        texto.textContent = "🔔 " + recordatorio.texto +
+            " · 📅 " + (recordatorio.fecha || "Sin fecha");
 
+        boton.textContent = "Eliminar";
+        boton.type = "button";
+        boton.addEventListener("click", function() {
+            eliminarRecordatorio(indice);
+        });
+
+        elemento.append(texto, boton);
+        lista.appendChild(elemento);
     });
 
-
+    actualizarDashboard();
 }
 
+function eliminarRecordatorio(indice) {
+    const recordatorios = obtenerRecordatorios();
 
+    if (indice < 0 || indice >= recordatorios.length) return;
 
-window.addEventListener(
-"load",
-mostrarRecordatorios
-);
+    recordatorios.splice(indice, 1);
 
-function actualizarDashboard(){
+    localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
 
-
-    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-
-
-    let recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
-
-
-
-    document.getElementById("contador-tareas").textContent =
-    "Tienes " + tareas.length + " tareas pendientes";
-
-
-
-    document.getElementById("contador-recordatorios").textContent =
-    "Tienes " + recordatorios.length + " recordatorios guardados";
-
-
+    mostrarRecordatorios();
+    actualizarDashboard();
 }
 
+function actualizarDashboard() {
+    const tareas = obtenerTareas();
+    const recordatorios = obtenerRecordatorios();
 
+    const contadorTareas = document.getElementById("contador-tareas");
+    const contadorRecordatorios = document.getElementById("contador-recordatorios");
+    const totalTareas = document.getElementById("total-tareas");
+    const totalRecordatorios = document.getElementById("total-recordatorios");
 
-window.addEventListener(
-"load",
-actualizarDashboard
-);
+    if (contadorTareas) {
+        contadorTareas.textContent = "Tienes " + tareas.length + " tareas pendientes";
+    }
 
-window.addEventListener("load", mostrarTareas);
-window.addEventListener("load", actualizarDashboard);
+    if (contadorRecordatorios) {
+        contadorRecordatorios.textContent = "Tienes " + recordatorios.length + " recordatorios";
+    }
+
+    if (totalTareas) {
+        totalTareas.textContent = tareas.length;
+    }
+
+    if (totalRecordatorios) {
+        totalRecordatorios.textContent = recordatorios.length;
+    }
+}
+
+window.addEventListener("load", function() {
+    mostrarTareas();
+    mostrarRecordatorios();
+    actualizarDashboard();
+});

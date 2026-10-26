@@ -1,78 +1,135 @@
-function enviarMensaje(){
 
-    let input = document.getElementById("mensaje");
-    let chat = document.getElementById("chat-box");
+function enviarMensaje() {
+    const input = document.getElementById("mensaje");
+    const chat = document.getElementById("chat-box");
 
-    let texto = input.value.trim();
+    if (!input || !chat) return;
 
-    if(texto === ""){
-        return;
-    }
+    const texto = input.value.trim();
 
-    let mensajeUsuario = document.createElement("div");
+    if (!texto) return;
 
+    const mensaje = texto.toLowerCase();
+
+    const mensajeUsuario = document.createElement("div");
     mensajeUsuario.className = "mensaje user";
-
     mensajeUsuario.textContent = texto;
-
     chat.appendChild(mensajeUsuario);
 
     input.value = "";
 
-    let respuesta = document.createElement("div");
-
+    const respuesta = document.createElement("div");
     respuesta.className = "mensaje bot";
 
-   let mensaje = texto.toLowerCase();
+    if (
+        mensaje.startsWith("crear tarea:") ||
+        mensaje.startsWith("agregar tarea:")
+    ) {
+        const nombreTarea = texto.substring(texto.indexOf(":") + 1).trim();
 
-if(mensaje.startsWith("crear tarea:")){
+        if (!nombreTarea) {
+            respuesta.textContent = "Escribe el nombre de la tarea después de los dos puntos.";
+        } else {
+            const tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+            tareas.push(nombreTarea);
+            localStorage.setItem("tareas", JSON.stringify(tareas));
 
-    let nombreTarea = texto.substring(13).trim();
+            if (typeof mostrarTareas === "function") mostrarTareas();
+            if (typeof actualizarDashboard === "function") actualizarDashboard();
 
-    if(nombreTarea !== ""){
+            respuesta.textContent = "✅ ¡Listo! He agregado la tarea: " + nombreTarea;
+        }
 
-        let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+    } else if (
+        mensaje.startsWith("crear recordatorio:") ||
+        mensaje.startsWith("crear recordatoria:") ||
+        mensaje.startsWith("agregar recordatorio:")
+    ) {
+        const textoRecordatorio = texto.substring(texto.indexOf(":") + 1).trim();
 
-        tareas.push(nombreTarea);
+        if (!textoRecordatorio) {
+            respuesta.textContent = "Escribe qué necesitas recordar después de los dos puntos.";
+        } else {
+            const recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
 
-        localStorage.setItem("tareas", JSON.stringify(tareas));
+            recordatorios.push({
+                texto: textoRecordatorio,
+                fecha: "Sin fecha"
+            });
 
-        try{
-    if(typeof mostrarTareas === "function"){
-        mostrarTareas();
+            localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
+
+            if (typeof mostrarRecordatorios === "function") mostrarRecordatorios();
+            if (typeof actualizarDashboard === "function") actualizarDashboard();
+
+            respuesta.textContent = "🔔 ¡Recordatorio guardado!: " + textoRecordatorio;
+        }
+
+    } else if (
+        mensaje.includes("hola") ||
+        mensaje.includes("buenos días") ||
+        mensaje.includes("buenas tardes") ||
+        mensaje.includes("buenas noches") ||
+        mensaje.includes("qué más")
+    ) {
+        respuesta.textContent = "¡Hola! 👋 Soy Nexia, tu asistente virtual. Estoy aquí para ayudarte a organizar tu día. ¿Qué necesitas hacer hoy?";
+
+    } else if (
+        mensaje.includes("qué puedes hacer") ||
+        mensaje.includes("que puedes hacer") ||
+        mensaje.includes("ayuda") ||
+        mensaje.includes("funciones")
+    ) {
+        respuesta.textContent = "Puedo ayudarte con estas funciones: 📋 crear tareas, 🔔 guardar recordatorios y 📊 consultar el resumen de tus pendientes. Escribe 'Crear tarea: estudiar' o 'Crear recordatorio: pagar internet' para comenzar.";
+
+    } else if (
+        mensaje.includes("cómo estás") ||
+        mensaje.includes("como estas")
+    ) {
+        respuesta.textContent = "¡Funcionando al 100 %! 🤖 Estoy listo para ayudarte a organizar tus pendientes. ¿Qué hacemos primero?";
+
+    } else if (
+        mensaje.includes("gracias")
+    ) {
+        respuesta.textContent = "¡Con mucho gusto! 😊 Estoy aquí para ayudarte a organizar tus actividades.";
+
+    } else if (
+        mensaje.includes("tareas") ||
+        mensaje.includes("mis tareas")
+    ) {
+        const tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+        if (tareas.length === 0) {
+            respuesta.textContent = "📋 Todavía no tienes tareas guardadas. Puedes crear una escribiendo: Crear tarea: estudiar.";
+        } else {
+            respuesta.textContent = "📋 Tienes " + tareas.length + " tarea(s): " + tareas.join(", ");
+        }
+
+    } else if (
+        mensaje.includes("recordatorios") ||
+        mensaje.includes("mis recordatorios")
+    ) {
+        const recordatorios = JSON.parse(localStorage.getItem("recordatorios")) || [];
+
+        if (recordatorios.length === 0) {
+            respuesta.textContent = "🔔 Todavía no tienes recordatorios. Crea uno escribiendo: Crear recordatorio: pagar internet.";
+        } else {
+            respuesta.textContent = "🔔 Tus recordatorios son: " + recordatorios.map(function(recordatorio) {
+                return recordatorio.texto;
+            }).join(", ");
+        }
+
+    } else if (
+        mensaje.includes("organizar mi día") ||
+        mensaje.includes("organizar mi dia") ||
+        mensaje.includes("organizar mi tiempo")
+    ) {
+        respuesta.textContent = "🗓️ ¡Vamos a organizar tu día! Primero, anota tus tareas más importantes usando 'Crear tarea: seguido de la actividad'. Después, guarda cualquier pendiente con 'Crear recordatorio: seguido de lo que necesitas recordar'.";
+
+    } else {
+        respuesta.textContent = "🤖 Entiendo lo que me dices. Por ahora estoy aprendiendo. Puedes pedirme ayuda con tareas, recordatorios o escribir '¿Qué puedes hacer?' para conocer mis funciones.";
     }
-
-    if(typeof actualizarDashboard === "function"){
-        actualizarDashboard();
-    }
-}catch(error){
-    console.log(error);
-}
-
-        respuesta.textContent =
-        "✅ He agregado la tarea: " + nombreTarea;
-
-    }else{
-
-        respuesta.textContent =
-        "Escribe el nombre después de 'Crear tarea:'";
-
-    }
-
-}else if(mensaje.includes("recordatorio")){
-
-    respuesta.textContent =
-    "🔔 También puedo ayudarte con recordatorios.";
-
-}else{
-
-    respuesta.textContent =
-    "🤖 Entendido. Estoy aprendiendo y cada vez puedo ayudarte mejor.";
-
-}
 
     chat.appendChild(respuesta);
-
     chat.scrollTop = chat.scrollHeight;
-
 }
