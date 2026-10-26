@@ -1222,3 +1222,93 @@ footer {
         flex-direction: column;
     }
 }
+
+
+.task-item,
+.reminder-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 15px 17px;
+    background: #ffffff;
+    border: 1px solid #e7e9f2;
+    border-radius: 13px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.task-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.task-checkbox {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+    accent-color: #6256e8;
+    cursor: pointer;
+}
+
+.task-text {
+    overflow-wrap: anywhere;
+    color: #292d42;
+}
+
+.task-completed {
+    background: #f8f9fc;
+}
+
+.task-completed .task-text {
+    color: #969bb0;
+    text-decoration: line-through;
+}
+
+.task-delete {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    color: #d4485a;
+    background: #fff0f2;
+    border-radius: 9px;
+    font-size: 0.8rem;
+}
+
+.task-delete:hover {
+    color: #b92e42;
+    background: #ffe0e4;
+}
+
+.task-progress-text {
+    margin: 8px 0 0;
+    font-size: 0.8rem;
+}
+
+.task-empty {
+    padding: 16px;
+    color: #777d91;
+    background: #f8f8fc;
+    border: 1px dashed #dfe1ee;
+    border-radius: 12px;
+    list-style: none;
+}
+
+#lista-recordatorios {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    list-style: none;
+}
+
+.reminder-item span {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+    .task-item,
+    .reminder-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+}
