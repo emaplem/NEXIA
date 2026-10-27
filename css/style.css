@@ -1312,3 +1312,47 @@ footer {
         flex-wrap: wrap;
     }
 }
+
+
+
+.reminder-content {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.reminder-text {
+    color: #292d42;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.reminder-date {
+    color: #777d91;
+    font-size: 0.78rem;
+}
+
+.reminder-upcoming {
+    border-left: 4px solid #6256e8;
+}
+
+.reminder-today {
+    background: #fff9e9;
+    border-color: #f2d58b;
+    border-left: 4px solid #e2a32b;
+}
+
+.reminder-overdue {
+    background: #fff3f3;
+    border-color: #f3c9ce;
+    border-left: 4px solid #d4485a;
+}
+
+.reminder-empty {
+    padding: 17px;
+    color: #777d91;
+    background: #f8f8fc;
+    border: 1px dashed #dfe1ee;
+    border-radius: 12px;
+    list-style: none;
+}

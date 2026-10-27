@@ -200,6 +200,7 @@ function agregarRecordatorio() {
     actualizarDashboard();
 }
 
+
 function mostrarRecordatorios() {
     const lista = document.getElementById("lista-recordatorios");
 
@@ -209,38 +210,108 @@ function mostrarRecordatorios() {
 
     const recordatorios = obtenerRecordatorios();
 
+    recordatorios.sort(function(a, b) {
+        const fechaA = a.fecha || "9999-12-31";
+        const fechaB = b.fecha || "9999-12-31";
+
+        return fechaA.localeCompare(fechaB);
+    });
+
     if (recordatorios.length === 0) {
         const elemento = document.createElement("li");
-        elemento.textContent = "Todavía no tienes recordatorios guardados.";
+        elemento.className = "reminder-empty";
+        elemento.textContent = "No tienes recordatorios pendientes. ¡Todo al día!";
         lista.appendChild(elemento);
         actualizarDashboard();
         return;
     }
 
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
     recordatorios.forEach(function(recordatorio, indice) {
         const elemento = document.createElement("li");
+        const contenido = document.createElement("div");
         const texto = document.createElement("span");
+        const fecha = document.createElement("small");
         const boton = document.createElement("button");
 
         elemento.className = "reminder-item";
+        contenido.className = "reminder-content";
 
-        texto.textContent = "🔔 " + recordatorio.texto +
-            " · 📅 " + (recordatorio.fecha || "Sin fecha");
+        const fechaTexto = recordatorio.fecha || "";
+
+        texto.className = "reminder-text";
+        texto.textContent = recordatorio.texto || "Recordatorio sin descripción";
+
+        if (fechaTexto) {
+            const partes = fechaTexto.split("-").map(Number);
+            const fechaRecordatorio = new Date(
+                partes[0],
+                partes[1] - 1,
+                partes[2]
+            );
+
+            fecha.className = "reminder-date";
+            fecha.textContent = "📅 " + fechaRecordatorio.toLocaleDateString("es-CO", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            });
+
+            if (fechaRecordatorio < hoy) {
+                elemento.classList.add("reminder-overdue");
+                fecha.textContent = "⚠️ Vencido · " + fecha.textContent;
+            } else if (fechaRecordatorio.getTime() === hoy.getTime()) {
+                elemento.classList.add("reminder-today");
+                fecha.textContent = "📌 Hoy · " + fecha.textContent;
+            } else {
+                elemento.classList.add("reminder-upcoming");
+            }
+        } else {
+            fecha.className = "reminder-date";
+            fecha.textContent = "Sin fecha definida";
+        }
 
         boton.type = "button";
         boton.className = "task-delete";
         boton.textContent = "Eliminar";
 
         boton.addEventListener("click", function() {
-            eliminarRecordatorio(indice);
+            eliminarRecordatorioPorTexto(recordatorio);
         });
 
-        elemento.append(texto, boton);
+        contenido.append(texto, fecha);
+        elemento.append(contenido, boton);
         lista.appendChild(elemento);
     });
 
     actualizarDashboard();
 }
+
+function eliminarRecordatorioPorTexto(recordatorio) {
+    const recordatorios = obtenerRecordatorios();
+    const indice = recordatorios.indexOf(recordatorio);
+
+    if (indice === -1) {
+        const encontrado = recordatorios.findIndex(function(item) {
+            return item.texto === recordatorio.texto &&
+                item.fecha === recordatorio.fecha;
+        });
+
+        if (encontrado === -1) return;
+
+        recordatorios.splice(encontrado, 1);
+    } else {
+        recordatorios.splice(indice, 1);
+    }
+
+    localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
+
+    mostrarRecordatorios();
+    actualizarDashboard();
+}
+
 
 function eliminarRecordatorio(indice) {
     const recordatorios = obtenerRecordatorios();
