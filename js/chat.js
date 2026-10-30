@@ -7,11 +7,21 @@ function normalizarTexto(texto) {
         .trim();
 }
 
+function generarIdChat() {
+    if (typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+    }
+
+    return "nexia-" + Date.now() + "-" +
+        Math.random().toString(36).slice(2, 10);
+}
+
 function obtenerTareasChat() {
     try {
-        const tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+        const datos = JSON.parse(localStorage.getItem("tareas")) || [];
 
-        return tareas.map(function(tarea) {
+        return datos.map(function(tarea) {
             if (typeof tarea === "string") {
                 return {
                     texto: tarea,
@@ -25,29 +35,20 @@ function obtenerTareasChat() {
             };
         });
     } catch (error) {
+        console.error("Error al leer tareas:", error);
         return [];
     }
 }
 
 function obtenerRecordatoriosChat() {
     try {
-        return JSON.parse(localStorage.getItem("recordatorios")) || [];
+        return JSON.parse(
+            localStorage.getItem("recordatorios")
+        ) || [];
     } catch (error) {
+        console.error("Error al leer recordatorios:", error);
         return [];
     }
-}
-
-function agregarMensajeChat(texto, tipo) {
-    const chat = document.getElementById("chat-box");
-
-    if (!chat) return;
-
-    const mensaje = document.createElement("div");
-    mensaje.className = "mensaje " + tipo;
-    mensaje.textContent = texto;
-
-    chat.appendChild(mensaje);
-    chat.scrollTop = chat.scrollHeight;
 }
 
 function actualizarDatosChat() {
@@ -64,47 +65,69 @@ function actualizarDatosChat() {
     }
 }
 
-function crearTareaDesdeChat(texto) {
-    if (!texto) {
-        return "Escribe el nombre de la tarea. Ejemplo: Crear tarea: estudiar programación.";
+function agregarMensajeChat(texto, tipo) {
+    const chat = document.getElementById("chat-box");
+
+    if (!chat) return;
+
+    const mensaje = document.createElement("div");
+    mensaje.className = "mensaje " + tipo;
+    mensaje.textContent = texto;
+
+    chat.appendChild(mensaje);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function crearTareaDesdeChat(descripcion) {
+    if (!descripcion.trim()) {
+        return "Escribe una tarea. Ejemplo: Crear tarea: estudiar programación.";
     }
 
     const tareas = obtenerTareasChat();
 
     tareas.push({
-        texto: texto,
+        texto: descripcion.trim(),
         completada: false
     });
 
     localStorage.setItem("tareas", JSON.stringify(tareas));
     actualizarDatosChat();
 
-    return "✅ Tarea creada correctamente: " + texto;
+    return "✅ Tarea creada correctamente: " + descripcion.trim();
 }
 
-function crearRecordatorioDesdeChat(texto) {
-    if (!texto) {
+function crearRecordatorioDesdeChat(contenido) {
+    if (!contenido.trim()) {
         return "Escribe qué necesitas recordar. Ejemplo: Crear recordatorio: pagar internet.";
     }
 
-    let descripcion = texto;
+    let descripcion = contenido.trim();
     let fecha = "";
 
-    const coincidencia = texto.match(/\|\s*(\d{4}-\d{2}-\d{2})\s*$/);
+    const coincidencia = descripcion.match(
+        /\|\s*(\d{4}-\d{2}-\d{2})\s*$/
+    );
 
     if (coincidencia) {
         fecha = coincidencia[1];
-        descripcion = texto.substring(0, coincidencia.index).trim();
+        descripcion = descripcion
+            .slice(0, coincidencia.index)
+            .trim();
 
         const partes = fecha.split("-").map(Number);
-        const fechaValidada = new Date(partes[0], partes[1] - 1, partes[2]);
+        const fechaValidada = new Date(
+            partes[0],
+            partes[1] - 1,
+            partes[2]
+        );
 
-        if (
-            fechaValidada.getFullYear() !== partes[0] ||
-            fechaValidada.getMonth() !== partes[1] - 1 ||
-            fechaValidada.getDate() !== partes[2]
-        ) {
-            return "La fecha no es válida. Usa el formato AAAA-MM-DD.";
+        const fechaCorrecta =
+            fechaValidada.getFullYear() === partes[0] &&
+            fechaValidada.getMonth() === partes[1] - 1 &&
+            fechaValidada.getDate() === partes[2];
+
+        if (!fechaCorrecta) {
+            return "⚠️ Esa fecha no es válida. Usa el formato AAAA-MM-DD.";
         }
     }
 
@@ -115,54 +138,56 @@ function crearRecordatorioDesdeChat(texto) {
     const recordatorios = obtenerRecordatoriosChat();
 
     recordatorios.push({
+        id: generarIdChat(),
         texto: descripcion,
         fecha: fecha
     });
 
-    localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
+    localStorage.setItem(
+        "recordatorios",
+        JSON.stringify(recordatorios)
+    );
+
     actualizarDatosChat();
 
     if (fecha) {
-        return "🔔 Recordatorio guardado: " + descripcion + ". Fecha: " + fecha + ".";
+        return "🔔 Recordatorio guardado: " +
+            descripcion + ". Fecha: " + fecha + ".";
     }
 
     return "🔔 Recordatorio guardado: " + descripcion +
-        ". Puedes añadir una fecha desde la sección Mis recordatorios.";
+        ". Puedes establecer su fecha en la sección Mis recordatorios.";
 }
 
 function consultarTareas() {
     const tareas = obtenerTareasChat();
-
-    if (tareas.length === 0) {
-        return "📋 Todavía no tienes tareas. Puedes crear una escribiendo: Crear tarea: estudiar.";
-    }
 
     const pendientes = tareas.filter(function(tarea) {
         return !tarea.completada;
     });
 
     if (pendientes.length === 0) {
-        return "🎉 ¡Excelente! No tienes tareas pendientes. Has completado todas tus tareas registradas.";
+        return tareas.length === 0
+            ? "📋 Todavía no tienes tareas. Prueba: Crear tarea: estudiar."
+            : "🎉 ¡Excelente! No tienes tareas pendientes.";
     }
 
-    return "📋 Estas son tus tareas pendientes:\n" +
+    return "📋 Tus tareas pendientes:\n" +
         pendientes.map(function(tarea, indice) {
             return (indice + 1) + ". " + tarea.texto;
         }).join("\n");
 }
 
 function consultarCompletadas() {
-    const tareas = obtenerTareasChat();
-
-    const completadas = tareas.filter(function(tarea) {
+    const completadas = obtenerTareasChat().filter(function(tarea) {
         return tarea.completada;
     });
 
     if (completadas.length === 0) {
-        return "Todavía no has marcado tareas como completadas. Puedes hacerlo usando la casilla al lado de cada tarea.";
+        return "Todavía no tienes tareas marcadas como completadas.";
     }
 
-    return "✅ Estas son tus tareas completadas:\n" +
+    return "✅ Tus tareas completadas:\n" +
         completadas.map(function(tarea, indice) {
             return (indice + 1) + ". " + tarea.texto;
         }).join("\n");
@@ -181,9 +206,10 @@ function consultarRecordatorios() {
         );
     });
 
-    return "🔔 Tus recordatorios son:\n" +
+    return "🔔 Tus recordatorios:\n" +
         ordenados.map(function(recordatorio, indice) {
-            return (indice + 1) + ". " + recordatorio.texto +
+            return (indice + 1) + ". " +
+                (recordatorio.texto || "Sin descripción") +
                 " — " + (recordatorio.fecha || "Sin fecha definida");
         }).join("\n");
 }
@@ -199,19 +225,32 @@ function organizarDia() {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
+    const fechaHoy = [
+        hoy.getFullYear(),
+        String(hoy.getMonth() + 1).padStart(2, "0"),
+        String(hoy.getDate()).padStart(2, "0")
+    ].join("-");
+
     const recordatoriosHoy = recordatorios.filter(function(recordatorio) {
-        return recordatorio.fecha ===
-            [
-                hoy.getFullYear(),
-                String(hoy.getMonth() + 1).padStart(2, "0"),
-                String(hoy.getDate()).padStart(2, "0")
-            ].join("-");
+        return recordatorio.fecha === fechaHoy;
     });
 
-    let respuesta = "🗓️ Vamos a organizar tu día.\n\n";
+    const vencidos = recordatorios.filter(function(recordatorio) {
+        return recordatorio.fecha && recordatorio.fecha < fechaHoy;
+    });
+
+    let respuesta = "🗓️ RESUMEN DE TU DÍA\n\n";
+
+    respuesta += "📋 Tareas pendientes: " + pendientes.length + "\n";
+    respuesta += "✅ Tareas completadas: " +
+        (tareas.length - pendientes.length) + "\n";
+    respuesta += "📌 Recordatorios para hoy: " +
+        recordatoriosHoy.length + "\n";
+    respuesta += "⚠️ Recordatorios vencidos: " +
+        vencidos.length + "\n\n";
 
     if (pendientes.length > 0) {
-        respuesta += "📋 Tareas pendientes:\n";
+        respuesta += "Tus próximas tareas:\n";
 
         respuesta += pendientes.slice(0, 5).map(function(tarea, indice) {
             return (indice + 1) + ". " + tarea.texto;
@@ -222,62 +261,67 @@ function organizarDia() {
                 " tareas más.";
         }
     } else {
-        respuesta += "✅ No tienes tareas pendientes registradas.";
+        respuesta += "¡No tienes tareas pendientes registradas!";
     }
 
-    respuesta += "\n\n🔔 Recordatorios para hoy: " + recordatoriosHoy.length + ".";
-
-    respuesta += "\n\nMi sugerencia: empieza por la tarea más importante y divide las actividades grandes en pasos pequeños.";
+    respuesta += "\n\n💡 Consejo: empieza por tu actividad más importante.";
 
     return respuesta;
 }
 
-function responderNexia(textoOriginal) {
-    const texto = normalizarTexto(textoOriginal);
+function mostrarAyuda() {
+    return "🤖 ESTO ES LO QUE PUEDO HACER\n\n" +
+        "📋 Crear tarea: estudiar programación\n" +
+        "🔔 Crear recordatorio: pagar internet | 2026-11-05\n" +
+        "📝 Consultar mis tareas pendientes\n" +
+        "✅ Ver tareas completadas\n" +
+        "📅 Mostrar mis recordatorios\n" +
+        "🗓️ Organizar mi día\n\n" +
+        "Para poner fecha a un recordatorio, escribe una barra vertical " +
+        "(|) seguida de la fecha AAAA-MM-DD.";
+}
 
-    const comandoTarea = textoOriginal.match(
-        /^\s*(?:crear|agregar|anadir|anade|nueva)\s+tareas?\s*:\s*([\s\S]+)$/i
+function responderNexia(mensajeOriginal) {
+    const texto = normalizarTexto(mensajeOriginal);
+
+    const comandoTarea = texto.match(
+        /^(?:crear|agregar|anadir|nueva|nuevo)\s+tareas?\s*:\s*([\s\S]+)$/
     );
 
     if (comandoTarea) {
-        return crearTareaDesdeChat(comandoTarea[1].trim());
+        return crearTareaDesdeChat(comandoTarea[1]);
     }
 
-    const comandoRecordatorio = textoOriginal.match(
-        /^\s*(?:crear|agregar|anadir|anade|nuevo|nueva)\s+recordatorios?\s*:\s*([\s\S]+)$/i
+    const comandoRecordatorio = texto.match(
+        /^(?:crear|agregar|anadir|nueva|nuevo)\s+recordatorios?\s*:\s*([\s\S]+)$/
     );
 
     if (comandoRecordatorio) {
-        return crearRecordatorioDesdeChat(comandoRecordatorio[1].trim());
+        return crearRecordatorioDesdeChat(comandoRecordatorio[1]);
     }
 
     if (
+        texto === "ayuda" ||
+        texto === "comandos" ||
         texto.includes("que puedes hacer") ||
-        texto.includes("ayuda") ||
-        texto.includes("funciones") ||
-        texto === "comandos"
+        texto.includes("tus funciones") ||
+        texto.includes("como te uso")
     ) {
-        return "🤖 Estas son mis funciones actuales:\n\n" +
-            "📋 Crear tarea: estudiar programación\n" +
-            "🔔 Crear recordatorio: pagar internet | 2026-11-05\n" +
-            "📝 Consultar tareas pendientes\n" +
-            "✅ Consultar tareas completadas\n" +
-            "📅 Consultar recordatorios\n" +
-            "🗓️ Organizar mi día\n\n" +
-            "Para añadir una fecha desde el chat, utiliza el formato AAAA-MM-DD después de la barra vertical.";
+        return mostrarAyuda();
     }
 
     if (
         texto.includes("tareas completadas") ||
         texto.includes("tareas terminadas") ||
         texto.includes("que he completado") ||
-        texto.includes("que complete")
+        texto.includes("que complete") ||
+        texto.includes("actividades realizadas")
     ) {
         return consultarCompletadas();
     }
 
     if (
-        texto.includes("recordatorios") ||
+        texto.includes("recordatorio") ||
         texto.includes("que debo recordar") ||
         texto.includes("que tengo que recordar")
     ) {
@@ -288,8 +332,9 @@ function responderNexia(textoOriginal) {
         texto.includes("organizar mi dia") ||
         texto.includes("organiza mi dia") ||
         texto.includes("organizar el dia") ||
-        texto.includes("organizar mi tiempo") ||
-        texto.includes("planificar mi dia")
+        texto.includes("planificar mi dia") ||
+        texto.includes("resumen de mi dia") ||
+        texto.includes("como va mi dia")
     ) {
         return organizarDia();
     }
@@ -308,32 +353,39 @@ function responderNexia(textoOriginal) {
     if (
         texto === "hola" ||
         texto.startsWith("hola ") ||
-        texto.includes("buenos dias") ||
-        texto.includes("buenas tardes") ||
-        texto.includes("buenas noches") ||
+        texto.startsWith("buenos dias") ||
+        texto.startsWith("buenas tardes") ||
+        texto.startsWith("buenas noches") ||
         texto === "que mas"
     ) {
-        return "¡Hola! 👋 Soy Nexia, tu asistente virtual. Puedo ayudarte a gestionar tus tareas y recordatorios. ¿Qué necesitas hacer hoy?";
+        return "¡Hola! 👋 Soy Nexia. Puedo ayudarte con tus tareas, " +
+            "recordatorios y planificación. Escribe «ayuda» para ver mis funciones.";
     }
 
-    if (texto.includes("como estas")) {
-        return "¡Funcionando correctamente! 🤖 Estoy listo para ayudarte con tu organización.";
+    if (
+        texto.includes("como estas") ||
+        texto.includes("estas funcionando")
+    ) {
+        return "¡Estoy listo para ayudarte! 🤖 ¿Quieres consultar tus pendientes u organizar tu día?";
     }
 
     if (texto.includes("gracias")) {
-        return "¡Con mucho gusto! 😊 Sigamos organizando tus pendientes.";
+        return "¡Con mucho gusto! 😊 ¿Qué más necesitas organizar?";
     }
 
     if (
         texto.includes("documento") ||
         texto.includes("archivo") ||
         texto.includes("formulario") ||
-        texto.includes("tramite")
+        texto.includes("tramite") ||
+        texto.includes("cita")
     ) {
-        return "📄 Puedo ayudarte a organizar tus pendientes relacionados con documentos y trámites. Puedes registrar cada actividad con el comando Crear tarea: seguido de su descripción.";
+        return "📄 Podemos organizar esa actividad. Por ejemplo, escribe: " +
+            "Crear tarea: reunir documentos para mi cita.";
     }
 
-    return "🤖 No tengo una respuesta específica para eso todavía. Escribe «ayuda» para consultar mis comandos o dime si quieres crear una tarea, consultar pendientes u organizar tu día.";
+    return "🤔 Todavía no sé responder a esa solicitud específica. " +
+        "Escribe «ayuda» para ver mis funciones o prueba «Organizar mi día».";
 }
 
 function enviarMensaje() {
@@ -341,15 +393,14 @@ function enviarMensaje() {
 
     if (!input) return;
 
-    const texto = input.value.trim();
+    const mensaje = input.value.trim();
 
-    if (!texto) return;
+    if (!mensaje) return;
 
-    agregarMensajeChat(texto, "user");
-
+    agregarMensajeChat(mensaje, "user");
     input.value = "";
 
-    const respuesta = responderNexia(texto);
+    const respuesta = responderNexia(mensaje);
 
     agregarMensajeChat(respuesta, "bot");
 }
