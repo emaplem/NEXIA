@@ -65,6 +65,18 @@ function actualizarDatosChat() {
     }
 }
 
+
+function guardarHistorialChat() {
+    const historial = JSON.parse(
+        localStorage.getItem("historialChat")
+    ) || [];
+
+    localStorage.setItem(
+        "historialChat",
+        JSON.stringify(historial)
+    );
+}
+
 function agregarMensajeChat(texto, tipo) {
     const chat = document.getElementById("chat-box");
 
@@ -76,7 +88,68 @@ function agregarMensajeChat(texto, tipo) {
 
     chat.appendChild(mensaje);
     chat.scrollTop = chat.scrollHeight;
+
+    const historial = JSON.parse(
+        localStorage.getItem("historialChat")
+    ) || [];
+
+    historial.push({
+        texto: texto,
+        tipo: tipo,
+        fecha: new Date().toISOString()
+    });
+
+    localStorage.setItem(
+        "historialChat",
+        JSON.stringify(historial)
+    );
 }
+
+function cargarHistorialChat() {
+    const chat = document.getElementById("chat-box");
+
+    if (!chat) return;
+
+    const historial = JSON.parse(
+        localStorage.getItem("historialChat")
+    ) || [];
+
+    chat.innerHTML = "";
+
+    historial.forEach(function(item) {
+        const mensaje = document.createElement("div");
+
+        mensaje.className = "mensaje " + item.tipo;
+        mensaje.textContent = item.texto;
+
+        chat.appendChild(mensaje);
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+}
+
+
+function limpiarHistorialChat() {
+    const confirmar = confirm(
+        "¿Estás seguro de que deseas borrar todo el historial del chat?"
+    );
+
+    if (!confirmar) return;
+
+    localStorage.removeItem("historialChat");
+
+    const chat = document.getElementById("chat-box");
+
+    if (chat) {
+        chat.innerHTML = "";
+    }
+
+    agregarMensajeChat(
+        "¡Hola! Soy Nexia. ¿En qué puedo ayudarte hoy? 🤖",
+        "bot"
+    );
+}
+
 
 function crearTareaDesdeChat(descripcion) {
     if (!descripcion.trim()) {
@@ -425,6 +498,8 @@ function enviarMensaje() {
 }
 
 window.addEventListener("load", function() {
+    cargarHistorialChat();
+
     const input = document.getElementById("mensaje");
 
     if (input) {
