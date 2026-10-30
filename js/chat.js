@@ -281,19 +281,20 @@ function mostrarAyuda() {
         "(|) seguida de la fecha AAAA-MM-DD.";
 }
 
+
 function responderNexia(mensajeOriginal) {
     const texto = normalizarTexto(mensajeOriginal);
 
-    const comandoTarea = texto.match(
-        /^(?:crear|agregar|anadir|nueva|nuevo)\s+tareas?\s*:\s*([\s\S]+)$/
+    const comandoTarea = mensajeOriginal.match(
+        /^\s*(?:crear|agregar|añadir|anadir|nueva|nuevo)\s+tareas?\s*:\s*([\s\S]+)$/i
     );
 
     if (comandoTarea) {
         return crearTareaDesdeChat(comandoTarea[1]);
     }
 
-    const comandoRecordatorio = texto.match(
-        /^(?:crear|agregar|anadir|nueva|nuevo)\s+recordatorios?\s*:\s*([\s\S]+)$/
+    const comandoRecordatorio = mensajeOriginal.match(
+        /^\s*(?:crear|agregar|añadir|anadir|nueva|nuevo)\s+recordatorios?\s*:\s*([\s\S]+)$/i
     );
 
     if (comandoRecordatorio) {
@@ -302,10 +303,10 @@ function responderNexia(mensajeOriginal) {
 
     if (
         texto === "ayuda" ||
-        texto === "comandos" ||
         texto.includes("que puedes hacer") ||
-        texto.includes("tus funciones") ||
-        texto.includes("como te uso")
+        texto.includes("que sabes hacer") ||
+        texto.includes("como puedes ayudarme") ||
+        texto === "comandos"
     ) {
         return mostrarAyuda();
     }
@@ -315,7 +316,7 @@ function responderNexia(mensajeOriginal) {
         texto.includes("tareas terminadas") ||
         texto.includes("que he completado") ||
         texto.includes("que complete") ||
-        texto.includes("actividades realizadas")
+        texto.includes("que ya hice")
     ) {
         return consultarCompletadas();
     }
@@ -323,7 +324,8 @@ function responderNexia(mensajeOriginal) {
     if (
         texto.includes("recordatorio") ||
         texto.includes("que debo recordar") ||
-        texto.includes("que tengo que recordar")
+        texto.includes("que tengo que recordar") ||
+        texto.includes("mis avisos")
     ) {
         return consultarRecordatorios();
     }
@@ -334,7 +336,8 @@ function responderNexia(mensajeOriginal) {
         texto.includes("organizar el dia") ||
         texto.includes("planificar mi dia") ||
         texto.includes("resumen de mi dia") ||
-        texto.includes("como va mi dia")
+        texto.includes("como va mi dia") ||
+        texto.includes("que tengo para hoy")
     ) {
         return organizarDia();
     }
@@ -343,9 +346,11 @@ function responderNexia(mensajeOriginal) {
         texto.includes("tareas pendientes") ||
         texto.includes("que tengo pendiente") ||
         texto.includes("que tengo por hacer") ||
+        texto.includes("que debo hacer") ||
+        texto.includes("que tengo que hacer") ||
+        texto.includes("mis actividades") ||
         texto.includes("mis tareas") ||
-        texto === "tareas" ||
-        texto.includes("consultar tareas")
+        texto === "tareas"
     ) {
         return consultarTareas();
     }
@@ -358,19 +363,18 @@ function responderNexia(mensajeOriginal) {
         texto.startsWith("buenas noches") ||
         texto === "que mas"
     ) {
-        return "¡Hola! 👋 Soy Nexia. Puedo ayudarte con tus tareas, " +
-            "recordatorios y planificación. Escribe «ayuda» para ver mis funciones.";
+        return "¡Hola! 👋 Soy Nexia. Estoy listo para ayudarte a organizar tus actividades. ¿Qué necesitas hacer hoy?";
     }
 
     if (
         texto.includes("como estas") ||
         texto.includes("estas funcionando")
     ) {
-        return "¡Estoy listo para ayudarte! 🤖 ¿Quieres consultar tus pendientes u organizar tu día?";
+        return "¡Estoy funcionando correctamente! 🤖 ¿Qué actividad quieres organizar?";
     }
 
     if (texto.includes("gracias")) {
-        return "¡Con mucho gusto! 😊 ¿Qué más necesitas organizar?";
+        return "¡Con mucho gusto! 😊 Estoy aquí para ayudarte a organizar mejor tu tiempo.";
     }
 
     if (
@@ -380,13 +384,28 @@ function responderNexia(mensajeOriginal) {
         texto.includes("tramite") ||
         texto.includes("cita")
     ) {
-        return "📄 Podemos organizar esa actividad. Por ejemplo, escribe: " +
-            "Crear tarea: reunir documentos para mi cita.";
+        return "Puedo ayudarte a organizar esa actividad. Puedes convertirla en una tarea escribiendo, por ejemplo: Crear tarea: reunir documentos para mi cita.";
     }
 
-    return "🤔 Todavía no sé responder a esa solicitud específica. " +
-        "Escribe «ayuda» para ver mis funciones o prueba «Organizar mi día».";
+    if (
+        texto.includes("estoy ocupado") ||
+        texto.includes("tengo muchas cosas") ||
+        texto.includes("no se por donde empezar") ||
+        texto.includes("no se que hacer primero")
+    ) {
+        return "Podemos organizarlo paso a paso. Primero revisemos tus tareas pendientes. Después podemos priorizar las más importantes. Escribe: Organizar mi día.";
+    }
+
+    if (
+        texto.includes("quien eres") ||
+        texto.includes("que eres")
+    ) {
+        return "Soy Nexia, tu asistente virtual de organización. Puedo ayudarte a administrar tareas, consultar recordatorios y planificar tus actividades.";
+    }
+
+    return "No he comprendido completamente tu solicitud. 🤔 Puedes explicármela de otra manera o escribir «ayuda» para conocer mis funciones.";
 }
+
 
 function enviarMensaje() {
     const input = document.getElementById("mensaje");

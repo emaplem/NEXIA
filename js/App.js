@@ -39,13 +39,42 @@ function guardarTareas(tareas) {
     localStorage.setItem("tareas", JSON.stringify(tareas));
 }
 
+
 function obtenerRecordatorios() {
     try {
-        return JSON.parse(localStorage.getItem("recordatorios")) || [];
+        const datos = JSON.parse(
+            localStorage.getItem("recordatorios")
+        ) || [];
+
+        let huboCambios = false;
+
+        const recordatorios = datos.map(function(recordatorio) {
+            if (!recordatorio.id) {
+                recordatorio.id = crypto.randomUUID();
+                huboCambios = true;
+            }
+
+            return {
+                id: recordatorio.id,
+                texto: recordatorio.texto || "",
+                fecha: recordatorio.fecha || ""
+            };
+        });
+
+        if (huboCambios) {
+            localStorage.setItem(
+                "recordatorios",
+                JSON.stringify(recordatorios)
+            );
+        }
+
+        return recordatorios;
     } catch (error) {
+        console.error("Error al cargar recordatorios:", error);
         return [];
     }
 }
+
 
 function agregarTarea() {
     const input = document.getElementById("tarea");
@@ -186,10 +215,11 @@ function agregarRecordatorio() {
 
     const recordatorios = obtenerRecordatorios();
 
-    recordatorios.push({
-        texto: texto,
-        fecha: fecha
-    });
+   recordatorios.push({
+    id: crypto.randomUUID(),
+    texto: texto,
+    fecha: fecha
+});
 
     localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
 
@@ -289,28 +319,30 @@ function mostrarRecordatorios() {
     actualizarDashboard();
 }
 
+
 function eliminarRecordatorioPorTexto(recordatorio) {
     const recordatorios = obtenerRecordatorios();
-    const indice = recordatorios.indexOf(recordatorio);
+
+    const indice = recordatorios.findIndex(function(item) {
+        return item.id === recordatorio.id;
+    });
 
     if (indice === -1) {
-        const encontrado = recordatorios.findIndex(function(item) {
-            return item.texto === recordatorio.texto &&
-                item.fecha === recordatorio.fecha;
-        });
-
-        if (encontrado === -1) return;
-
-        recordatorios.splice(encontrado, 1);
-    } else {
-        recordatorios.splice(indice, 1);
+        console.warn("No se encontró el recordatorio que se quería eliminar.");
+        return;
     }
 
-    localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
+    recordatorios.splice(indice, 1);
+
+    localStorage.setItem(
+        "recordatorios",
+        JSON.stringify(recordatorios)
+    );
 
     mostrarRecordatorios();
     actualizarDashboard();
 }
+
 
 
 function eliminarRecordatorio(indice) {
