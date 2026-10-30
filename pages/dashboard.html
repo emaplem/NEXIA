@@ -263,31 +263,46 @@
 </section>
 
             <section class="content-panel tasks" id="tareas">
-                <div class="panel-heading">
-                    <div>
-                        <span class="section-kicker">PRODUCTIVIDAD</span>
-                        <h2>Mis tareas</h2>
-                        <p>Registra las actividades que necesitas completar.</p>
-                    </div>
+    <div class="panel-heading">
+        <div>
+            <span class="section-kicker">PRODUCTIVIDAD</span>
+            <h2>Mis tareas</h2>
+            <p>Registra y organiza las actividades que necesitas completar.</p>
+        </div>
 
-                    <span class="task-heading-icon">✓</span>
-                </div>
+        <span class="task-heading-icon">✓</span>
+    </div>
 
-                <div class="task-container">
-                    <input
-                        type="text"
-                        id="tarea"
-                        placeholder="Ej. Terminar mi proyecto..."
-                        aria-label="Nombre de la nueva tarea"
-                        onkeydown="if(event.key === 'Enter') agregarTarea()">
+    <div class="task-container">
+        <input
+            type="text"
+            id="tarea"
+            placeholder="Ej. Terminar mi proyecto..."
+            aria-label="Nombre de la nueva tarea"
+            onkeydown="if(event.key === 'Enter') agregarTarea()">
 
-                    <button onclick="agregarTarea()">
-                        + Agregar tarea
-                    </button>
-                </div>
+        <select id="prioridad-tarea" aria-label="Prioridad de la tarea">
+            <option value="media">Prioridad media</option>
+            <option value="alta">Prioridad alta</option>
+            <option value="baja">Prioridad baja</option>
+        </select>
 
-                <ul id="lista-tareas"></ul>
-            </section>
+        <button onclick="agregarTarea()">
+            + Agregar tarea
+        </button>
+    </div>
+
+    <div class="task-filters">
+        <label for="filtro-tareas">Mostrar:</label>
+        <select id="filtro-tareas" onchange="mostrarTareas()">
+            <option value="todas">Todas las tareas</option>
+            <option value="pendientes">Pendientes</option>
+            <option value="completadas">Completadas</option>
+        </select>
+    </div>
+
+    <ul id="lista-tareas"></ul>
+</section>
 
             <footer class="app-footer">
                 <a href="#inicio" class="footer-brand">Nexia.</a>

@@ -1,6 +1,14 @@
 
 console.log("Nexia iniciado correctamente 🤖");
 
+function generarId() {
+    if (window.crypto && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+
+    return Date.now().toString() + Math.random().toString(16).slice(2);
+}
+
 function iniciarNexia() {
     alert("Hola 👋 Soy Nexia, tu asistente virtual. ¿En qué puedo ayudarte?");
 }
@@ -16,21 +24,46 @@ function mostrarChat() {
 function obtenerTareas() {
     try {
         const datos = JSON.parse(localStorage.getItem("tareas")) || [];
+        let huboCambios = false;
 
-        return datos.map(function(tarea) {
+        const tareas = datos.map(function(tarea) {
             if (typeof tarea === "string") {
+                huboCambios = true;
+
                 return {
+                    id: generarId(),
                     texto: tarea,
-                    completada: false
+                    completada: false,
+                    prioridad: "media"
                 };
             }
 
-            return {
+            const tareaActualizada = {
+                id: tarea.id || generarId(),
                 texto: tarea.texto || "",
-                completada: Boolean(tarea.completada)
+                completada: Boolean(tarea.completada),
+                prioridad: ["alta", "media", "baja"].includes(tarea.prioridad)
+                    ? tarea.prioridad
+                    : "media"
             };
+
+            if (
+                !tarea.id ||
+                !["alta", "media", "baja"].includes(tarea.prioridad)
+            ) {
+                huboCambios = true;
+            }
+
+            return tareaActualizada;
         });
+
+        if (huboCambios) {
+            guardarTareas(tareas);
+        }
+
+        return tareas;
     } catch (error) {
+        console.error("Error al cargar tareas:", error);
         return [];
     }
 }
@@ -38,7 +71,6 @@ function obtenerTareas() {
 function guardarTareas(tareas) {
     localStorage.setItem("tareas", JSON.stringify(tareas));
 }
-
 
 function obtenerRecordatorios() {
     try {
@@ -50,12 +82,11 @@ function obtenerRecordatorios() {
 
         const recordatorios = datos.map(function(recordatorio) {
             if (!recordatorio.id) {
-                recordatorio.id = crypto.randomUUID();
                 huboCambios = true;
             }
 
             return {
-                id: recordatorio.id,
+                id: recordatorio.id || generarId(),
                 texto: recordatorio.texto || "",
                 fecha: recordatorio.fecha || ""
             };
@@ -75,13 +106,16 @@ function obtenerRecordatorios() {
     }
 }
 
-
 function agregarTarea() {
     const input = document.getElementById("tarea");
+    const selectorPrioridad = document.getElementById("prioridad-tarea");
 
     if (!input) return;
 
     const texto = input.value.trim();
+    const prioridad = selectorPrioridad
+        ? selectorPrioridad.value
+        : "media";
 
     if (!texto) {
         alert("Escribe una tarea primero.");
@@ -91,16 +125,24 @@ function agregarTarea() {
     const tareas = obtenerTareas();
 
     tareas.push({
+        id: generarId(),
         texto: texto,
-        completada: false
+        completada: false,
+        prioridad: prioridad
     });
 
     guardarTareas(tareas);
+
     input.value = "";
+
+    if (selectorPrioridad) {
+        selectorPrioridad.value = "media";
+    }
 
     mostrarTareas();
     actualizarDashboard();
 }
+
 
 function mostrarTareas() {
     const lista = document.getElementById("lista-tareas");
@@ -110,88 +152,174 @@ function mostrarTareas() {
     lista.replaceChildren();
 
     const tareas = obtenerTareas();
-    const pendientes = tareas.filter(function(tarea) {
-        return !tarea.completada;
-    }).length;
+    const filtro = document.getElementById("filtro-tareas");
+    const filtroActual = filtro ? filtro.value : "todas";
 
-    if (tareas.length === 0) {
+    const tareasFiltradas = tareas.filter(function(tarea) {
+        if (filtroActual === "pendientes") {
+            return !tarea.completada;
+        }
+
+        if (filtroActual === "completadas") {
+            return tarea.completada;
+        }
+
+        return true;
+    });
+
+    const ordenPrioridad = {
+        alta: 1,
+        media: 2,
+        baja: 3
+    };
+
+    tareasFiltradas.sort(function(a, b) {
+        if (a.completada !== b.completada) {
+            return Number(a.completada) - Number(b.completada);
+        }
+
+        return ordenPrioridad[a.prioridad] - ordenPrioridad[b.prioridad];
+    });
+
+    if (tareasFiltradas.length === 0) {
         const elemento = document.createElement("li");
         elemento.className = "task-empty";
-        elemento.textContent = "Todavía no tienes tareas. ¡Agrega la primera!";
+
+        elemento.textContent = tareas.length === 0
+            ? "Todavía no tienes tareas. ¡Agrega la primera!"
+            : "No hay tareas en esta categoría.";
+
         lista.appendChild(elemento);
-        actualizarDashboard();
-        return;
     }
 
-    tareas.forEach(function(tarea, indice) {
+    tareasFiltradas.forEach(function(tarea) {
         const elemento = document.createElement("li");
         const contenido = document.createElement("div");
         const casilla = document.createElement("input");
+        const detalles = document.createElement("div");
         const texto = document.createElement("span");
-        const boton = document.createElement("button");
+        const prioridad = document.createElement("span");
+        const acciones = document.createElement("div");
+        const botonEditar = document.createElement("button");
+        const botonEliminar = document.createElement("button");
 
         elemento.className = "task-item";
+        elemento.classList.add("priority-" + tarea.prioridad);
 
         if (tarea.completada) {
             elemento.classList.add("task-completed");
         }
 
         contenido.className = "task-content";
+        detalles.className = "task-details";
+        acciones.className = "task-actions";
 
         casilla.type = "checkbox";
         casilla.className = "task-checkbox";
         casilla.checked = tarea.completada;
-        casilla.setAttribute("aria-label", "Marcar como completada: " + tarea.texto);
 
         casilla.addEventListener("change", function() {
-            alternarTarea(indice);
+            alternarTarea(tarea.id);
         });
 
         texto.className = "task-text";
         texto.textContent = tarea.texto;
 
-        boton.type = "button";
-        boton.className = "task-delete";
-        boton.textContent = "Eliminar";
-        boton.addEventListener("click", function() {
-            eliminarTarea(indice);
+        prioridad.className = "task-priority";
+        prioridad.textContent = "Prioridad " + tarea.prioridad;
+
+        botonEditar.type = "button";
+        botonEditar.className = "task-edit";
+        botonEditar.textContent = "Editar";
+
+        botonEditar.addEventListener("click", function() {
+            editarTarea(tarea.id);
         });
 
-        contenido.append(casilla, texto);
-        elemento.append(contenido, boton);
+        botonEliminar.type = "button";
+        botonEliminar.className = "task-delete";
+        botonEliminar.textContent = "Eliminar";
+
+        botonEliminar.addEventListener("click", function() {
+            eliminarTarea(tarea.id);
+        });
+
+        detalles.append(texto, prioridad);
+        contenido.append(casilla, detalles);
+        acciones.append(botonEditar, botonEliminar);
+        elemento.append(contenido, acciones);
+
         lista.appendChild(elemento);
     });
 
-    const resumen = document.createElement("p");
+    const pendientes = tareas.filter(function(tarea) {
+        return !tarea.completada;
+    }).length;
+
+    const completadas = tareas.length - pendientes;
+
+    const resumen = document.createElement("li");
     resumen.className = "task-progress-text";
     resumen.textContent = pendientes + " pendientes · " +
-        (tareas.length - pendientes) + " completadas";
+        completadas + " completadas";
 
     lista.appendChild(resumen);
 
     actualizarDashboard();
 }
 
-function alternarTarea(indice) {
+function editarTarea(id) {
     const tareas = obtenerTareas();
 
-    if (indice < 0 || indice >= tareas.length) return;
+    const tarea = tareas.find(function(item) {
+        return item.id === id;
+    });
 
-    tareas[indice].completada = !tareas[indice].completada;
+    if (!tarea) return;
+
+    const nuevoTexto = prompt("Edita el nombre de tu tarea:", tarea.texto);
+
+    if (nuevoTexto === null) return;
+
+    if (!nuevoTexto.trim()) {
+        alert("El nombre de la tarea no puede estar vacío.");
+        return;
+    }
+
+    tarea.texto = nuevoTexto.trim();
 
     guardarTareas(tareas);
     mostrarTareas();
     actualizarDashboard();
 }
 
-function eliminarTarea(indice) {
+
+function alternarTarea(id) {
     const tareas = obtenerTareas();
 
-    if (indice < 0 || indice >= tareas.length) return;
+    const tarea = tareas.find(function(item) {
+        return item.id === id;
+    });
 
-    tareas.splice(indice, 1);
+    if (!tarea) return;
+
+    tarea.completada = !tarea.completada;
 
     guardarTareas(tareas);
+    mostrarTareas();
+    actualizarDashboard();
+}
+
+function eliminarTarea(id) {
+    const tareas = obtenerTareas();
+
+    const tareasActualizadas = tareas.filter(function(tarea) {
+        return tarea.id !== id;
+    });
+
+    if (tareasActualizadas.length === tareas.length) return;
+
+    guardarTareas(tareasActualizadas);
     mostrarTareas();
     actualizarDashboard();
 }
@@ -215,13 +343,16 @@ function agregarRecordatorio() {
 
     const recordatorios = obtenerRecordatorios();
 
-   recordatorios.push({
-    id: crypto.randomUUID(),
-    texto: texto,
-    fecha: fecha
-});
+    recordatorios.push({
+        id: generarId(),
+        texto: texto,
+        fecha: fecha
+    });
 
-    localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
+    localStorage.setItem(
+        "recordatorios",
+        JSON.stringify(recordatorios)
+    );
 
     inputTexto.value = "";
     inputFecha.value = "";
@@ -229,7 +360,6 @@ function agregarRecordatorio() {
     mostrarRecordatorios();
     actualizarDashboard();
 }
-
 
 function mostrarRecordatorios() {
     const lista = document.getElementById("lista-recordatorios");
@@ -241,16 +371,15 @@ function mostrarRecordatorios() {
     const recordatorios = obtenerRecordatorios();
 
     recordatorios.sort(function(a, b) {
-        const fechaA = a.fecha || "9999-12-31";
-        const fechaB = b.fecha || "9999-12-31";
-
-        return fechaA.localeCompare(fechaB);
+        return a.fecha.localeCompare(b.fecha);
     });
 
     if (recordatorios.length === 0) {
         const elemento = document.createElement("li");
         elemento.className = "reminder-empty";
-        elemento.textContent = "No tienes recordatorios pendientes. ¡Todo al día!";
+        elemento.textContent =
+            "No tienes recordatorios pendientes. ¡Todo al día!";
+
         lista.appendChild(elemento);
         actualizarDashboard();
         return;
@@ -259,7 +388,7 @@ function mostrarRecordatorios() {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    recordatorios.forEach(function(recordatorio, indice) {
+    recordatorios.forEach(function(recordatorio) {
         const elemento = document.createElement("li");
         const contenido = document.createElement("div");
         const texto = document.createElement("span");
@@ -269,13 +398,13 @@ function mostrarRecordatorios() {
         elemento.className = "reminder-item";
         contenido.className = "reminder-content";
 
-        const fechaTexto = recordatorio.fecha || "";
-
         texto.className = "reminder-text";
-        texto.textContent = recordatorio.texto || "Recordatorio sin descripción";
+        texto.textContent =
+            recordatorio.texto || "Recordatorio sin descripción";
 
-        if (fechaTexto) {
-            const partes = fechaTexto.split("-").map(Number);
+        if (recordatorio.fecha) {
+            const partes = recordatorio.fecha.split("-").map(Number);
+
             const fechaRecordatorio = new Date(
                 partes[0],
                 partes[1] - 1,
@@ -283,11 +412,12 @@ function mostrarRecordatorios() {
             );
 
             fecha.className = "reminder-date";
-            fecha.textContent = "📅 " + fechaRecordatorio.toLocaleDateString("es-CO", {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-            });
+            fecha.textContent = "📅 " +
+                fechaRecordatorio.toLocaleDateString("es-CO", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric"
+                });
 
             if (fechaRecordatorio < hoy) {
                 elemento.classList.add("reminder-overdue");
@@ -308,7 +438,7 @@ function mostrarRecordatorios() {
         boton.textContent = "Eliminar";
 
         boton.addEventListener("click", function() {
-            eliminarRecordatorioPorTexto(recordatorio);
+            eliminarRecordatorioPorTexto(recordatorio.id);
         });
 
         contenido.append(texto, fecha);
@@ -319,31 +449,23 @@ function mostrarRecordatorios() {
     actualizarDashboard();
 }
 
-
-function eliminarRecordatorioPorTexto(recordatorio) {
+function eliminarRecordatorioPorTexto(id) {
     const recordatorios = obtenerRecordatorios();
 
-    const indice = recordatorios.findIndex(function(item) {
-        return item.id === recordatorio.id;
+    const actualizados = recordatorios.filter(function(item) {
+        return item.id !== id;
     });
 
-    if (indice === -1) {
-        console.warn("No se encontró el recordatorio que se quería eliminar.");
-        return;
-    }
-
-    recordatorios.splice(indice, 1);
+    if (actualizados.length === recordatorios.length) return;
 
     localStorage.setItem(
         "recordatorios",
-        JSON.stringify(recordatorios)
+        JSON.stringify(actualizados)
     );
 
     mostrarRecordatorios();
     actualizarDashboard();
 }
-
-
 
 function eliminarRecordatorio(indice) {
     const recordatorios = obtenerRecordatorios();
@@ -352,7 +474,10 @@ function eliminarRecordatorio(indice) {
 
     recordatorios.splice(indice, 1);
 
-    localStorage.setItem("recordatorios", JSON.stringify(recordatorios));
+    localStorage.setItem(
+        "recordatorios",
+        JSON.stringify(recordatorios)
+    );
 
     mostrarRecordatorios();
     actualizarDashboard();
@@ -379,8 +504,8 @@ function actualizarDashboard() {
     }
 
     if (contadorRecordatorios) {
-        contadorRecordatorios.textContent = "Tienes " +
-            recordatorios.length + " recordatorios";
+        contadorRecordatorios.textContent =
+            "Tienes " + recordatorios.length + " recordatorios";
     }
 
     if (totalTareas) {
