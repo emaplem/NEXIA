@@ -34,7 +34,8 @@ function obtenerTareas() {
                     id: generarId(),
                     texto: tarea,
                     completada: false,
-                    prioridad: "media"
+                    prioridad: "media",
+                    categoria: "otros"
                 };
             }
 
@@ -44,12 +45,16 @@ function obtenerTareas() {
                 completada: Boolean(tarea.completada),
                 prioridad: ["alta", "media", "baja"].includes(tarea.prioridad)
                     ? tarea.prioridad
-                    : "media"
+                    : "media",
+                categoria: ["personal", "estudio", "trabajo", "otros"].includes(tarea.categoria)
+                    ? tarea.categoria
+                    : "otros"
             };
 
             if (
                 !tarea.id ||
-                !["alta", "media", "baja"].includes(tarea.prioridad)
+                !["alta", "media", "baja"].includes(tarea.prioridad) ||
+                !["personal", "estudio", "trabajo", "otros"].includes(tarea.categoria)
             ) {
                 huboCambios = true;
             }
@@ -109,13 +114,13 @@ function obtenerRecordatorios() {
 function agregarTarea() {
     const input = document.getElementById("tarea");
     const selectorPrioridad = document.getElementById("prioridad-tarea");
+    const selectorCategoria = document.getElementById("categoria-tarea");
 
     if (!input) return;
 
     const texto = input.value.trim();
-    const prioridad = selectorPrioridad
-        ? selectorPrioridad.value
-        : "media";
+    const prioridad = selectorPrioridad ? selectorPrioridad.value : "media";
+    const categoria = selectorCategoria ? selectorCategoria.value : "otros";
 
     if (!texto) {
         alert("Escribe una tarea primero.");
@@ -128,16 +133,16 @@ function agregarTarea() {
         id: generarId(),
         texto: texto,
         completada: false,
-        prioridad: prioridad
+        prioridad: prioridad,
+        categoria: categoria
     });
 
     guardarTareas(tareas);
 
     input.value = "";
 
-    if (selectorPrioridad) {
-        selectorPrioridad.value = "media";
-    }
+    if (selectorPrioridad) selectorPrioridad.value = "media";
+    if (selectorCategoria) selectorCategoria.value = "personal";
 
     mostrarTareas();
     actualizarDashboard();
@@ -152,26 +157,30 @@ function mostrarTareas() {
     lista.replaceChildren();
 
     const tareas = obtenerTareas();
-    const filtro = document.getElementById("filtro-tareas");
-    const filtroActual = filtro ? filtro.value : "todas";
 
-    const tareasFiltradas = tareas.filter(function(tarea) {
-        if (filtroActual === "pendientes") {
-            return !tarea.completada;
-        }
+    const filtroEstado = document.getElementById("filtro-tareas");
+    const filtroCategoria = document.getElementById("filtro-categoria");
 
-        if (filtroActual === "completadas") {
-            return tarea.completada;
-        }
-
-        return true;
-    });
+    const estado = filtroEstado ? filtroEstado.value : "todas";
+    const categoria = filtroCategoria ? filtroCategoria.value : "todas";
 
     const ordenPrioridad = {
         alta: 1,
         media: 2,
         baja: 3
     };
+
+    const tareasFiltradas = tareas.filter(function(tarea) {
+        const coincideEstado =
+            estado === "todas" ||
+            (estado === "pendientes" && !tarea.completada) ||
+            (estado === "completadas" && tarea.completada);
+
+        const coincideCategoria =
+            categoria === "todas" || tarea.categoria === categoria;
+
+        return coincideEstado && coincideCategoria;
+    });
 
     tareasFiltradas.sort(function(a, b) {
         if (a.completada !== b.completada) {
@@ -184,10 +193,9 @@ function mostrarTareas() {
     if (tareasFiltradas.length === 0) {
         const elemento = document.createElement("li");
         elemento.className = "task-empty";
-
         elemento.textContent = tareas.length === 0
             ? "Todavía no tienes tareas. ¡Agrega la primera!"
-            : "No hay tareas en esta categoría.";
+            : "No hay tareas con los filtros seleccionados.";
 
         lista.appendChild(elemento);
     }
@@ -199,12 +207,12 @@ function mostrarTareas() {
         const detalles = document.createElement("div");
         const texto = document.createElement("span");
         const prioridad = document.createElement("span");
+        const categoriaTexto = document.createElement("span");
         const acciones = document.createElement("div");
         const botonEditar = document.createElement("button");
         const botonEliminar = document.createElement("button");
 
-        elemento.className = "task-item";
-        elemento.classList.add("priority-" + tarea.prioridad);
+        elemento.className = "task-item priority-" + tarea.prioridad;
 
         if (tarea.completada) {
             elemento.classList.add("task-completed");
@@ -228,6 +236,9 @@ function mostrarTareas() {
         prioridad.className = "task-priority";
         prioridad.textContent = "Prioridad " + tarea.prioridad;
 
+        categoriaTexto.className = "task-category";
+        categoriaTexto.textContent = tarea.categoria;
+
         botonEditar.type = "button";
         botonEditar.className = "task-edit";
         botonEditar.textContent = "Editar";
@@ -244,7 +255,7 @@ function mostrarTareas() {
             eliminarTarea(tarea.id);
         });
 
-        detalles.append(texto, prioridad);
+        detalles.append(texto, prioridad, categoriaTexto);
         contenido.append(casilla, detalles);
         acciones.append(botonEditar, botonEliminar);
         elemento.append(contenido, acciones);
@@ -286,7 +297,37 @@ function editarTarea(id) {
         return;
     }
 
+    const nuevaPrioridad = prompt(
+        "Prioridad: alta, media o baja",
+        tarea.prioridad
+    );
+
+    if (nuevaPrioridad === null) return;
+
+    const prioridad = nuevaPrioridad.trim().toLowerCase();
+
+    if (!["alta", "media", "baja"].includes(prioridad)) {
+        alert("Selecciona una prioridad válida.");
+        return;
+    }
+
+    const nuevaCategoria = prompt(
+        "Categoría: personal, estudio, trabajo u otros",
+        tarea.categoria
+    );
+
+    if (nuevaCategoria === null) return;
+
+    const categoria = nuevaCategoria.trim().toLowerCase();
+
+    if (!["personal", "estudio", "trabajo", "otros"].includes(categoria)) {
+        alert("Selecciona una categoría válida.");
+        return;
+    }
+
     tarea.texto = nuevoTexto.trim();
+    tarea.prioridad = prioridad;
+    tarea.categoria = categoria;
 
     guardarTareas(tareas);
     mostrarTareas();

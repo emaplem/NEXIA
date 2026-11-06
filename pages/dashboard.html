@@ -274,32 +274,54 @@
     </div>
 
     <div class="task-container">
-        <input
-            type="text"
-            id="tarea"
-            placeholder="Ej. Terminar mi proyecto..."
-            aria-label="Nombre de la nueva tarea"
-            onkeydown="if(event.key === 'Enter') agregarTarea()">
+    <input
+        type="text"
+        id="tarea"
+        placeholder="Ej. Terminar mi proyecto..."
+        aria-label="Nombre de la nueva tarea"
+        onkeydown="if(event.key === 'Enter') agregarTarea()">
 
-        <select id="prioridad-tarea" aria-label="Prioridad de la tarea">
-            <option value="media">Prioridad media</option>
-            <option value="alta">Prioridad alta</option>
-            <option value="baja">Prioridad baja</option>
-        </select>
+    <select id="prioridad-tarea">
+        <option value="media">Prioridad media</option>
+        <option value="alta">Prioridad alta</option>
+        <option value="baja">Prioridad baja</option>
+    </select>
 
-        <button onclick="agregarTarea()">
-            + Agregar tarea
-        </button>
-    </div>
+    <select id="categoria-tarea">
+        <option value="personal">Personal</option>
+        <option value="estudio">Estudio</option>
+        <option value="trabajo">Trabajo</option>
+        <option value="otros">Otros</option>
+    </select>
 
-    <div class="task-filters">
-        <label for="filtro-tareas">Mostrar:</label>
+    <button type="button" onclick="agregarTarea()">
+        + Agregar tarea
+    </button>
+</div>
+
+<div class="task-filters">
+    <div>
+        <label for="filtro-tareas">Estado:</label>
         <select id="filtro-tareas" onchange="mostrarTareas()">
-            <option value="todas">Todas las tareas</option>
+            <option value="todas">Todas</option>
             <option value="pendientes">Pendientes</option>
             <option value="completadas">Completadas</option>
         </select>
     </div>
+
+    <div>
+        <label for="filtro-categoria">Categoría:</label>
+        <select id="filtro-categoria" onchange="mostrarTareas()">
+            <option value="todas">Todas</option>
+            <option value="personal">Personal</option>
+            <option value="estudio">Estudio</option>
+            <option value="trabajo">Trabajo</option>
+            <option value="otros">Otros</option>
+        </select>
+    </div>
+</div>
+
+<ul id="lista-tareas"></ul>
 
     <ul id="lista-tareas"></ul>
 </section>
