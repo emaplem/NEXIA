@@ -1,157 +1,125 @@
-function iniciarSesion() {
 
-    let correo = document.getElementById("correo").value;
-    let password = document.getElementById("password").value;
-
-    if (correo === "" || password === "") {
-
-        alert("Completa todos los campos.");
-
-        return;
-
-    }
-
-    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-    let usuarioEncontrado = usuarios.find(function(usuario){
-
-        return usuario.correo === correo &&
-               usuario.password === password;
-
-    });
-
-    if(usuarioEncontrado){
-
-        localStorage.setItem(
-            "usuarioActivo",
-            JSON.stringify(usuarioEncontrado)
-        );
-
-        alert("Bienvenido " + usuarioEncontrado.nombre);
-
-        window.location.href = "dashboard.html";
-
-    }else{
-
-        alert("Correo o contraseña incorrectos.");
-
-    }
-
+function obtenerUsuarios() {
+    return JSON.parse(localStorage.getItem("usuarios")) || [];
 }
 
-function registrarUsuario(){
+function iniciarSesion() {
+    const correo = document.getElementById("correo").value.trim().toLowerCase();
+    const password = document.getElementById("password").value;
 
-    let nombre = document.getElementById("nombre").value;
-
-    let correo = document.getElementById("correoRegistro").value;
-
-    let password = document.getElementById("passwordRegistro").value;
-
-
-    if(nombre === "" || correo === "" || password === ""){
-
+    if (!correo || !password) {
         alert("Completa todos los campos.");
-
         return;
-
     }
 
+    const usuarios = obtenerUsuarios();
 
-    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-
-
-    let existe = usuarios.find(function(usuario){
-
-        return usuario.correo === correo;
-
+    const usuarioEncontrado = usuarios.find(function(usuario) {
+        return usuario.correo.toLowerCase() === correo &&
+               usuario.password === password;
     });
 
-
-    if(existe){
-
-        alert("Ese correo ya está registrado.");
-
+    if (!usuarioEncontrado) {
+        alert("Correo o contraseña incorrectos.");
         return;
-
     }
 
+    localStorage.setItem("usuarioActivo", JSON.stringify(usuarioEncontrado));
 
-    let nuevoUsuario = {
+    window.location.href = "dashboard.html";
+}
 
+function registrarUsuario() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const correo = document.getElementById("correoRegistro").value.trim().toLowerCase();
+    const password = document.getElementById("passwordRegistro").value;
+
+    if (!nombre || !correo || !password) {
+        alert("Completa todos los campos.");
+        return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        alert("Ingresa un correo electrónico válido.");
+        return;
+    }
+
+    if (password.length < 6) {
+        alert("La contraseña debe tener al menos 6 caracteres.");
+        return;
+    }
+
+    const usuarios = obtenerUsuarios();
+
+    const existe = usuarios.some(function(usuario) {
+        return usuario.correo.toLowerCase() === correo;
+    });
+
+    if (existe) {
+        alert("Ese correo ya está registrado.");
+        return;
+    }
+
+    const nuevoUsuario = {
         nombre: nombre,
-
         correo: correo,
-
         password: password
-
     };
-
 
     usuarios.push(nuevoUsuario);
 
-
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
-
     alert("Usuario registrado correctamente.");
-
-
     window.location.href = "login.html";
-
 }
 
-function mostrarUsuario(){
+function mostrarUsuario() {
+    const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
 
-    let usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+    if (!usuario) return;
 
-    if(!usuario) return;
+    const bienvenida = document.getElementById("bienvenida");
+    const nombrePerfil = document.getElementById("nombre-perfil");
+    const correoPerfil = document.getElementById("correo-perfil");
+    const nombreTopbar = document.getElementById("nombre-topbar");
 
-    let bienvenida = document.getElementById("bienvenida");
-
-    if(bienvenida){
+    if (bienvenida) {
         bienvenida.textContent = "¡Bienvenido, " + usuario.nombre + "! 👋";
     }
 
-    let nombrePerfil = document.getElementById("nombre-perfil");
-    let correoPerfil = document.getElementById("correo-perfil");
-
-    if(nombrePerfil){
+    if (nombrePerfil) {
         nombrePerfil.textContent = usuario.nombre;
     }
 
-    if(correoPerfil){
+    if (correoPerfil) {
         correoPerfil.textContent = usuario.correo;
     }
 
+    if (nombreTopbar) {
+        nombreTopbar.textContent = usuario.nombre;
+    }
 }
 
 function protegerDashboard() {
-
-    // Solo ejecutar esta función en dashboard.html
     if (!window.location.pathname.endsWith("dashboard.html")) {
         return;
     }
 
-    let usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+    const usuario = localStorage.getItem("usuarioActivo");
 
     if (!usuario) {
-
         alert("Debes iniciar sesión para acceder.");
-
         window.location.href = "login.html";
-
     }
-
 }
-
-
-window.addEventListener("load", mostrarUsuario);
-window.addEventListener("load", protegerDashboard);
 
 function cerrarSesion() {
-
     localStorage.removeItem("usuarioActivo");
-
     window.location.href = "login.html";
-
 }
+
+window.addEventListener("load", function() {
+    protegerDashboard();
+    mostrarUsuario();
+});
