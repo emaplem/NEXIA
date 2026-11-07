@@ -414,9 +414,157 @@ function mostrarAyuda() {
         "🗓️ ORGANIZACIÓN\n" +
         "Organizar mi día";
 }
+ 
+
+function buscarTareaDesdeChat(nombre) {
+    const busqueda = normalizarTexto(nombre);
+
+    if (!busqueda) {
+        return { error: "Escribe el nombre de la tarea." };
+    }
+
+    const tareas = obtenerTareas();
+    const coincidencias = tareas.filter(function(tarea) {
+        return normalizarTexto(tarea.texto).includes(busqueda);
+    });
+
+    if (coincidencias.length === 0) {
+        return { error: "No encontré ninguna tarea con ese nombre." };
+    }
+
+    if (coincidencias.length > 1) {
+        return {
+            error: "Encontré varias tareas similares:\n" +
+                coincidencias.map(function(tarea) {
+                    return "• " + tarea.texto;
+                }).join("\n") +
+                "\n\nEscribe el nombre más específico."
+        };
+    }
+
+    return { tarea: coincidencias[0], tareas: tareas };
+}
+
+function guardarCambiosDesdeChat(tareas) {
+    guardarTareas(tareas);
+    actualizarDatosChat();
+}
+
+function completarTareaDesdeChat(nombre) {
+    const resultado = buscarTareaDesdeChat(nombre);
+
+    if (resultado.error) return resultado.error;
+
+    const tarea = resultado.tarea;
+
+    if (tarea.completada) {
+        return "Esta tarea ya aparece como completada: " + tarea.texto;
+    }
+
+    tarea.completada = true;
+    guardarCambiosDesdeChat(resultado.tareas);
+
+    return "✅ ¡Tarea completada!\n\n" + tarea.texto;
+}
+
+function eliminarTareaDesdeChat(nombre) {
+    const resultado = buscarTareaDesdeChat(nombre);
+
+    if (resultado.error) return resultado.error;
+
+    const tareasActualizadas = resultado.tareas.filter(function(tarea) {
+        return tarea.id !== resultado.tarea.id;
+    });
+
+    guardarCambiosDesdeChat(tareasActualizadas);
+
+    return "🗑️ Tarea eliminada correctamente:\n" +
+        resultado.tarea.texto;
+}
+
+function editarTareaDesdeChat(contenido) {
+    const partes = contenido.split("|");
+
+    if (partes.length !== 2 || !partes[0].trim() || !partes[1].trim()) {
+        return "Para editar una tarea escribe:\nEditar tarea: nombre actual | nombre nuevo";
+    }
+
+    const resultado = buscarTareaDesdeChat(partes[0].trim());
+
+    if (resultado.error) return resultado.error;
+
+    resultado.tarea.texto = partes[1].trim();
+
+    guardarCambiosDesdeChat(resultado.tareas);
+
+    return "✏️ Tarea actualizada correctamente.\n\nNuevo nombre: " +
+        resultado.tarea.texto;
+}
+
+function cambiarPrioridadDesdeChat(contenido) {
+    const partes = contenido.split("|");
+
+    if (partes.length !== 2) {
+        return "Escribe: Cambiar prioridad: nombre de la tarea | alta, media o baja";
+    }
+
+    const nombre = partes[0].trim();
+    const prioridad = normalizarTexto(partes[1]);
+
+    if (!["alta", "media", "baja"].includes(prioridad)) {
+        return "La prioridad debe ser alta, media o baja.";
+    }
+
+    const resultado = buscarTareaDesdeChat(nombre);
+
+    if (resultado.error) return resultado.error;
+
+    resultado.tarea.prioridad = prioridad;
+
+    guardarCambiosDesdeChat(resultado.tareas);
+
+    return "⚡ Prioridad actualizada.\n\n" +
+        "Tarea: " + resultado.tarea.texto +
+        "\nNueva prioridad: " + prioridad;
+}
+
 
 function responderNexia(mensajeOriginal) {
     const texto = normalizarTexto(mensajeOriginal);
+
+    
+    const comandoCompletar = mensajeOriginal.match(
+        /^\s*completar\s+tarea\s*:\s*([\s\S]+)$/i
+    );
+
+    if (comandoCompletar) {
+        return completarTareaDesdeChat(comandoCompletar[1]);
+    }
+
+    const comandoEliminar = mensajeOriginal.match(
+        /^\s*eliminar\s+tarea\s*:\s*([\s\S]+)$/i
+    );
+
+    if (comandoEliminar) {
+        return eliminarTareaDesdeChat(comandoEliminar[1]);
+    }
+
+    const comandoEditar = mensajeOriginal.match(
+        /^\s*editar\s+tarea\s*:\s*([\s\S]+)$/i
+    );
+
+    if (comandoEditar) {
+        return editarTareaDesdeChat(comandoEditar[1]);
+    }
+
+    const comandoPrioridad = mensajeOriginal.match(
+        /^\s*cambiar\s+prioridad\s*:\s*([\s\S]+)$/i
+    );
+
+    if (comandoPrioridad) {
+        return cambiarPrioridadDesdeChat(comandoPrioridad[1]);
+    }
+
 
     const comandoTarea = mensajeOriginal.match(
         /^\s*(?:crear|agregar|añadir|anadir|nueva|nuevo)\s+tareas?\s*:\s*([\s\S]+)$/i
