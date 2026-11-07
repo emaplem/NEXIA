@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -10,295 +11,76 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-
 <body>
 
+    <header>
+        <nav class="navbar">
 
-<header>
+            <h2 class="logo">Nexia 🤖</h2>
 
-    <nav class="navbar">
+            <ul class="menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="pages/login.html">Iniciar sesión</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
 
-        <h2 class="logo">
-            Nexia 🤖
-        </h2>
+        </nav>
+    </header>
 
+    <section class="hero">
 
-        <ul class="menu">
-    <li><a href="index.html">Inicio</a></li>
-    <li><a href="pages/login.html">Dashboard</a></li>
-    <li><a href="#contacto">Contacto</a></li>
-</ul>
+        <div class="hero-text">
 
-
-    </nav>
-
-</header>
-
-
-
-<section class="hero">
-
-
-    <div class="hero-text">
-
-        <h1>
-            Tu asistente virtual inteligente
-        </h1>
-
-
-        <p>
-            Nexia te ayuda a organizar tareas,
-            recordar fechas importantes y gestionar
-            tu información diaria.
-        </p>
-
-
-       <button onclick="mostrarChat()">
-    Comenzar ahora
-</button>
-
-    </div>
-
-
-</section>
-
-<section class="chat">
-
-    <h2>
-        Chat con Nexia 🤖
-    </h2>
-
-
-    <div id="chat-box">
-
-        <p>
-            Nexia: Hola 👋 soy tu asistente virtual.
-            ¿En qué puedo ayudarte?
-        </p>
-
-    </div>
-
-
-    <input 
-    type="text" 
-    id="mensaje"
-    placeholder="Escribe un mensaje..."
-    >
-
-
-    <button onclick="enviarMensaje()">
-        Enviar
-    </button>
-
-
-</section>
-
-
-
-<section class="dashboard">
-
-
-    <h2>
-        Panel de Nexia 🤖
-    </h2>
-
-
-    <div class="dashboard-cards">
-
-
-        <div class="dash-card">
-
-    <h3>
-        📋 Tareas
-    </h3>
-
-    <p id="contador-tareas">
-        Cargando...
-    </p>
-
-</div>
-
-
-        <div class="dash-card">
-
-    <h3>
-        🔔 Recordatorios
-    </h3>
-
-    <p id="contador-recordatorios">
-        Cargando...
-    </p>
-
-</div>
-
-
-
-        <div class="dash-card">
-
-            <h3>
-                💬 Chat IA
-            </h3>
+            <h1>Tu asistente virtual inteligente</h1>
 
             <p>
-                Habla con tu asistente virtual.
+                Nexia te ayuda a organizar tareas,
+                recordar fechas importantes y gestionar
+                tu información diaria.
             </p>
+
+            <button onclick="window.location.href='pages/login.html'">
+                Comenzar ahora
+            </button>
 
         </div>
 
+    </section>
 
-    </div>
+    <section class="services">
 
+        <h2>Nuestros servicios</h2>
 
-</section>
+        <div class="cards">
 
-<section class="services">
+            <div class="card">
+                <h3>📅 Organización</h3>
+                <p>Organiza tus actividades y agenda diaria.</p>
+            </div>
 
+            <div class="card">
+                <h3>📄 Documentos</h3>
+                <p>Ayuda para administrar información importante.</p>
+            </div>
 
-<h2>
-Nuestros servicios
-</h2>
+            <div class="card">
+                <h3>🔔 Recordatorios</h3>
+                <p>Nunca olvides fechas importantes.</p>
+            </div>
 
+        </div>
 
+    </section>
 
-<div class="cards">
+    <section id="contacto">
+        <h2>Conoce Nexia</h2>
+        <p>Tu organización diaria comienza aquí.</p>
+        <a href="pages/login.html">Comienza a utilizar Nexia</a>
+    </section>
 
-
-<div class="card">
-
-<h3>
-📅 Organización
-</h3>
-
-<p>
-Organiza tus actividades y agenda diaria.
-</p>
-
-</div>
-
-
-
-
-<div class="card">
-
-<h3>
-📄 Documentos
-</h3>
-
-<p>
-Ayuda para administrar información importante.
-</p>
-
-</div>
-
-
-
-
-<div class="card">
-
-<h3>
-🔔 Recordatorios
-</h3>
-
-<p>
-Nunca olvides fechas importantes.
-</p>
-
-</div>
-
-
-
-</div>
-
-
-</section>
-
-<section class="tasks">
-
-    <h2>
-        Mis tareas 📋
-    </h2>
-
-
-    <div class="task-container">
-
-
-        <input 
-        type="text" 
-        id="tarea"
-        placeholder="Escribe una tarea..."
-        >
-
-
-        <button onclick="agregarTarea()">
-            Agregar
-        </button>
-
-
-    </div>
-
-
-    <ul id="lista-tareas">
-
-    </ul>
-
-
-</section>
-
-<section class="reminders">
-
-
-    <h2>
-        Mis recordatorios 🔔
-    </h2>
-
-
-    <div class="reminder-container">
-
-
-        <input 
-        type="text"
-        id="recordatorio"
-        placeholder="Escribe un recordatorio..."
-        >
-
-
-        <input 
-        type="date"
-        id="fecha"
-        >
-
-
-        <button onclick="agregarRecordatorio()">
-            Guardar
-        </button>
-
-
-    </div>
-
-
-    <ul id="lista-recordatorios">
-
-    </ul>
-
-
-</section>
-
-
-
-
-<footer>
-
-<p>
-© 2026 Nexia - Asistente Virtual
-</p>
-
-</footer>
-
-
-
-
-<script src="js/app.js"></script>
-
+    <footer>
+        <p>© 2026 Nexia - Asistente Virtual</p>
+    </footer>
 
 </body>
 
